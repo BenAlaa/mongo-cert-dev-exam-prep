@@ -428,3 +428,117 @@ For array sub document we can access array elements with it's index.
 > "Zuckerberg": value that we are looking for
 > {"name":1}: projection to just include the company name in the resulting cursor
 
+
+
+
+# Chapter 5: Indexing and Aggregation Pipeline
+---
+
+## Aggregation Framework
+
+In it's simplest form, ianother way to query data in MongoDB.
+
+Let's find all documents that have wifi as one of the amenities only include preice and address in the resulting cursor
+```
+db.listingAndReviews.find(
+    {"amenities": "Wifi"},
+    {"price": 1, "address":1, _id:0}
+).pretty()
+```
+
+```
+db.listingAndReviews.aggregate([
+    {$match: {"amenities": "Wifi"}},
+    {$project: {"price": 1, "address":1, _id:0}}
+])
+```
+
+aggregation pipeline is array off stages the the documents go through one by one and the order is matter as the output of one stage is the input of the next stage.
+documents -> match -> project -> final result
+
+> $group is An operator or stage that take the incoming stream of data and siphon it into multiple distinct reservoirs.
+
+to find which countries are listed in the sample_airbnb.listingsAndReviews collection?
+```
+{
+    $group:
+        {
+            _id: "$address.country", // Group By Expression
+            "count": {"$sum": 1} // Accumelator
+        }
+}
+```
+
+
+## sort() and limit()
+They are cursor methods they applied to resulting cursor
+- Sort: 1 -> for increasing, -1 -> for decreasing
+- you should use sort first before limit
+
+```
+use sample_training
+
+db.zips.find().sort({ "pop": 1 }).limit(1)
+
+db.zips.find({ "pop": 0 }).count()
+
+db.zips.find().sort({ "pop": -1 }).limit(1)
+
+db.zips.find().sort({ "pop": -1 }).limit(10)
+
+db.zips.find().sort({ "pop": 1, "city": -1 })
+```
+
+
+## Introduction to Indexes
+
+- Using indexing like in the book is way more faster to find what you searching for in the book instead of going from the first page.
+- in Database index is a special data structure that stores a small portion of the collection's data set in an easy to traverse form
+- When we using indexes
+    1. Support your query.
+    2. Avoid sorting as the index itself is sorted.
+- Types of index
+    1. single field index.
+    2. compund index.
+
+
+```
+use sample_training
+
+db.trips.find({ "birth year": 1989 })
+
+db.trips.find({ "start station id": 476 }).sort( { "birth year": 1 } )
+
+db.trips.createIndex({ "birth year": 1 })
+
+db.trips.createIndex({ "start station id": 1, "birth year": 1 })
+```
+
+
+## Introduction to Data Modeling
+Data modeling - a way to organize fields in a document to support your application performance and querying capabilities.
+1. Data is stored in the way that it is used. (What we will store? and How it will be queried?)
+2. Data that is used together should be stored together.
+3. Evolving application implies an evolving data model.
+
+To learn more about data modeling with MongoDB, take our [Data Modeling Course](https://university.mongodb.com/courses/M320/about)! Check out our [documentation](https://docs.mongodb.com/manual/core/data-modeling-introduction/) and [blog](https://www.mongodb.com/blog/post/building-with-patterns-a-summary).
+
+
+## Upsert - Update or Insert?
+
+Everthing in MQL that is used to locate a document in a collection can also be used to modify this document.
+
+```
+db.collection.updateOne({<query>}, {<update>})
+```
+
+Upsert is a hybrid of update and insert, it should only be used when it is needed.
+
+```
+db.collection.updateOne({<query>},{<update>},{"upsert": true})
+```
+
+- If upsert is true:
+    - is there a match? -> then update the matched document
+    - is not ther a match? -> then insert a new document
+-
