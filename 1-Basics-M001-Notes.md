@@ -225,3 +225,206 @@ Example Commands:
 
 
 ### Logical Operators
+
+-
+    - > $and - Match all specified query clauses
+    - > $or - At least one of the query clauses is matched
+    - > $nor - Fail to match both given clauses
+    - > $not - Negates the query requirements
+- $and, $or, $nor syntax is
+    ```
+    {<operator>: [{statement1}, {statement2}, ...]}
+- with $not the array is not required:
+    ```
+    {$not: {statement}}
+    ```
+- $and allways in the query by default implicily used by default when an operator is not specified.
+    thats mean this
+    ```
+    {"sector": "Mobile", "result": "warning"}
+    ```
+    is the same as:
+    ```
+    {$and: [{"sector": "Mobile"}, {"result": "warning"}]}
+    ```
+
+    Also another place to find implicit and is when you apply multiple conditions on the same field
+    For example find which students ids are > 25 and < 100 in the sample_training.grades collection
+    ```
+    {"$and": [{"student_id": {"$gt": 25}}, {"student_id": {"$lt": 100}}]}
+    ```
+    is the same as
+    ```
+    {"student_id": {"$gt": 25, "$lt": 100}}
+    ```
+
+- You will need to use Expicit $and when you need to use the same operator more than one time in the same query
+
+    - for exmaple: Find all documents where airplanes CR2 or A81 left or landed in the KZN airport:
+
+        ```
+        db.routes.find({ 
+            "$and": [ 
+                { "$or" :
+                    [ 
+                        { "dst_airport": "KZN" },
+                        { "src_airport": "KZN" }
+                    ]
+                },
+                { "$or" :
+                    [ 
+                        { "airplane": "CR2" },
+                        { "airplane": "A81" } 
+                    ]
+                }
+            ]
+        }).pretty()
+        ```
+
+
+
+
+### Expressive Query Operator
+
+- > $expr allows to use of aggregations expressions  within the query language
+
+- this is the syntax
+    ```
+    {"$expr": { <expression> }}
+    ```
+- > $expr allows us to use varialbles and conditional statments
+- We can compare fields within the same document to each other
+- Examples: 
+    - Find all documents where the trip started and ended at the same station:
+        ```
+        db.trips.find({ 
+            "$expr": { 
+                "$eq": [ "$end station id", "$start station id"] 
+            }
+        }).count()
+        ```
+    - Find all documents where the trip lasted longer than 1200 seconds, and started and ended at the same station:
+        ```
+        db.trips.find({ 
+            "$expr": { 
+                "$and": [ 
+                    { "$gt": [ "$tripduration", 1200 ]},
+                    { "$eq": [ "$end station id", "$start station id" ]}
+                ]
+            }
+        }).count()
+        ```
+
+- usages of $
+    - denotes the use of an operator
+    - address the field value
+
+
+### Array Operators
+When quering an array field using an array will returns only exact array matches.
+
+1. $push
+    1. Allow us to add an element to an array field.
+    2. Turns a field into an array field if it was previously a different type
+
+2. $all
+
+    This operator returns a cursor with all documents that has array field contains at least this array of items regardless of there order in the array
+        ```
+        db.collName.find({fieldArray: {$all: ["item1", "item2"]}})
+        ```
+
+3. $size
+
+    This operator returns a cursor with all documents where the specified field array with given length length
+        ```
+        db.collname.find({fieldArray: {$size: 10}})
+        ```
+
+4. $elemMatch
+
+    - Matched documents that contain an array field with at least one element that matches the specified query criteria.
+        ```
+        {<field>: {"$elemMatch": {<field>:<value>}}}
+        ```
+
+    - Can be used with projection to specifies which fields should or should not be included in the result cursor
+        ```
+        db.<collection>.find({<query>}, {<projection>})
+        ```
+
+##### Projection
+- Only include the fields you want in the cursor result
+- By default all the fields will be returened.
+- You can apply projection by adding a second argument to the query
+    ```
+    db.<collection>.find({<query>}, {field1: 1, field2: 1})
+    ```
+- 1- include the field -> just will returns the fields specified
+- 0- exclude the field -> will return all the fields except the specified ones
+- Use only 1s or only 0s
+- You can only use both 1 and 0 with _id field because it will be included by default
+    ```
+    db.<collection>.find({<query>}, {<field>:1, _id:0})
+
+##### Examples:
+- Find all documents with exactly 20 amenities which include all the amenities listed in the query array, and display their price and address:
+
+    ```
+    db.listingsAndReviews.find({ "amenities":
+    { "$size": 20, "$all": [ "Internet", "Wifi",  "Kitchen", "Heating",
+                                "Family/kid friendly", "Washer", "Dryer",
+                                "Essentials", "Shampoo", "Hangers",
+                                "Hair dryer", "Iron",
+                                "Laptop friendly workspace" ] } },
+                        {"price": 1, "address": 1}).pretty()
+    ```
+
+- Find all documents that have Wifi as one of the amenities only include price and address in the resulting cursor:
+
+    ```
+    db.listingsAndReviews.find({ "amenities": "Wifi" },
+                        { "price": 1, "address": 1, "_id": 0 }).pretty()
+    ```
+
+- Find all documents that have Wifi as one of the amenities only include price and address in the resulting cursor, also exclude ``"maximum_nights"``. **This will be an error:*
+
+    ```
+    db.listingsAndReviews.find({ "amenities": "Wifi" },
+                        { "price": 1, "address": 1,
+                            "_id": 0, "maximum_nights":0 }).pretty()
+    ```
+
+- Find all documents where the student in class 431 received a grade higher than 85 for any type of assignment:
+
+    ```
+    db.grades.find({ "class_id": 431 },
+            { "scores": { "$elemMatch": { "score": { "$gt": 85 } } }
+            }).pretty()
+    ```
+
+- Find all documents where the student had an extra credit score:
+
+    ```
+    db.grades.find({ "scores": { "$elemMatch": { "type": "extra credit" } }
+            }).pretty()
+    ```
+
+
+
+### Query a Sub-Document
+
+We using dot notation to access sub-document fields in our query.
+For array sub document we can access array elements with it's index.
+```
+    db.companies.find(
+        {"relationships.0.person.last_name": "Zuckerberg"},
+        {"name": 1}
+    ).pretty()
+```
+> 0: position of the first array element
+> person: field name with a nested object as value
+> last_name: field name within the person sub-document
+> "Zuckerberg": value that we are looking for
+> {"name":1}: projection to just include the company name in the resulting cursor
+
