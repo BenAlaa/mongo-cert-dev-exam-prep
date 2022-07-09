@@ -1,0 +1,29 @@
+- new in 4.2
+{
+    $merge: {
+        into: "collection", // or
+        into: {
+            db: "",
+            coll: ""
+        },
+        on: <fields to match the documents>, // if not specified, will use _id in unsharded and 
+                                            // _id and shardkey in sharded
+                                            // can be string or array ["_id", "shardkey(s)"]
+                                            // if specified then the field must have unique index
+        whenNotMatched: "insert",   // default, other options (discard, fail)
+        whenMatched: "merge",   // default like upsert, other options (replace, keepExisting, fail, [...])
+                                // [...] --> aggregation pipeline to produce the new document
+                                // [ { $addFields: { total: { $sum: [ "$total", "$$new.total" ] } } } ]
+                                // $$new is a variable storing the incoming document
+                                // not all stages are available
+        let: { var: "$fieldInIncomingDoc" },   // only used when using pipline in when matched by default 
+                                                // sets {new: "$$ROOT"}
+    }
+}
+
+- can write to any collection in any db
+- collection can be sharded or not
+
+merging behavior:
+    - if nothing is matched ---> insert the document
+    - if match ---> update or replace

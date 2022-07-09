@@ -1,0 +1,19 @@
+- a series of stages that feen into one another to run a query
+
+- for a single query, many plans can be proposed based on the indexes
+- only one winning plan is used
+
+How it works:
+	- fresh query comes to the db for the first time
+	- the service looks for all indexes on the collection
+	- choose indexes viable for the query (candidate indexes)
+	- the query optimizer uses candidate indexes to generate candidate plans
+	- the quey planner is emperical query planner --> means all candidate plans will be tried over 
+			a short period of time then choose which plan performs best
+	- then mongodb caches the winning plan for that query shape
+	- the plans will be removed from cache if
+		- the server is restarted
+		- index is rebuilt
+		- index is created or dropped
+		- if threshold is reached, that is amount of work done by the first portion of the query exceeds the 
+				work done by the winning plan by a factor of 10

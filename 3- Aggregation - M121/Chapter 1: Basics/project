@@ -1,0 +1,153 @@
+- has the functionality of the project query
+    - specifying a field to retain, all other fields must be specified to be retained but the _id
+db.solarSystem.aggregate([
+    { $project: { gravity: "$gravity.value"
+        }
+    }
+])
+this assigns a new value to the gravity field
+$gravity indicates that we are reading the value of the field called gravity
+
+
+db.solarSystem.aggregate([
+    {
+    $project: {
+        weight: {
+            $multiply: [
+                    {
+                    $divide: [
+                            "$gravity.value",
+                            9.8
+                        ]
+                    },
+                    137
+                ]
+            },
+        _id: 0,
+        name: 1
+        }
+    }
+])
+
+================================================================================
+lab
+======
+
+pipeline = [
+    {
+        $match: {
+            'imdb.rating': {$gte: 7
+            },
+            genres: {$nin: ['Crime', 'Horror'
+                ]
+            },
+            rated: {$in: ['PG', 'G'
+                ]
+            },
+            languages: {$all: ['English', 'Japanese'
+                ]
+            }
+        }
+    },
+    {
+        $project: {
+            _id: 0,
+            title: 1,
+            rated: 1
+        }
+    }
+]
+
+pipeline = [
+    {
+        $match: {
+            title: {$exists: true
+            }
+        }
+    },
+    {
+        $project: {
+            _id: 0,
+            hasOneWord: {
+                $eq: [
+                    {
+                        $size: {
+                            $split: [
+                                "$title",
+                                " "
+                            ]
+                        }
+                    },
+                    1
+                ]
+            }
+        }
+    },
+    {
+        $match: {
+            hasOneWord: true
+        }
+    }
+]
+
+pipeline = [
+    {
+        $match: {
+            cast: {
+                $elemMatch: {
+                    $exists: true
+                }
+            },
+            writers: {
+                $elemMatch: {
+                    $exists: true
+                }
+            },
+            directors: {
+                $elemMatch: {
+                    $exists: true
+                }
+            }
+        }
+    },
+    {
+        $project: {
+            _id: 0,
+            cast: 1,
+            directors: 1,
+            writers: {
+                $map: {
+                    input: "$writers",
+                    as: "writer",
+                    in: {
+                        $arrayElemAt: [
+                            {
+                                $split: [
+                                "$$writer",
+                                " ("
+                                ]
+                            },
+                            0
+                        ]
+                    }
+                }
+            }
+        }
+    },
+    {
+        $project: {
+            "labor of love": {
+                $setIntersection: ["$cast", "$writers", "$directors"]
+            }
+        }
+    },
+    {
+        $match: {
+            "labor of love": {
+                $elemMatch: {
+                    $exists: true
+                }
+            }
+        }
+    }
+]

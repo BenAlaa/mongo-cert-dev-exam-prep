@@ -1,0 +1,14 @@
+Default size 64MB
+min size 1MB
+max size 1024MB
+
+can be changed at runtime using:
+- using config db
+- inserting into settings collection:
+  - db.settings.save({_id: "chunksize", value: <inMB> (ex: 2)})
+- changes will be applied when importing or saving new data
+
+
+shard key frequency affects the number of chunks:
+Jumbo chunks are larger than the defined chunksize and can't be moved or split 
+this results from poor choice of key

@@ -1,0 +1,30 @@
+Approximation:
+	- problem:
+		- data is expensive to calculate
+		o- percision is not an issue
+	- solution
+		- fewer writes with higher payload
+	- use cases:
+		- statistics
+		- counters with percision tolerance
+		- web page counters
+	- pros :
+		- less writes
+		- less contention on docs
+		- statistically valid numbers
+	- cons:
+		- not exact numbers
+		- must be implemented in the app
+
+Outliers pattern:
+	- problem:
+		- few docs would drive solution
+	- solution:
+		- implementation that works with the majority
+		- add field that indetify the Outliers
+		- outliers are handeled differently on app side
+	- use cases:
+		- social networks
+		- popularity
+	- pros:
+		- optimized for most cases

@@ -1,0 +1,24 @@
+- Person and credit cards
+
+Solutions:
+	1- Embedded doc:
+		- all in one collection
+
+		- embed the many in the one document
+			- most common
+			- will create a multi-key index
+
+		- embed the one in the many doc
+			- less often used
+			- useful if many is queried more often than one
+			- embedded object is duplicated
+
+	2- Reference:
+		- a collection for each
+		- refer to many in the one collection
+			- Array of references
+			- allows large number of documents
+			- cascade deletes are not handeled by mongo db and must be done by application logic
+		- refer to one in many collection
+			- preferred in references
+			- no need to manage references in the one side

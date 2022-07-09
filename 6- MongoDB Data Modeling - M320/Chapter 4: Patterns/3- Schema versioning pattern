@@ -1,0 +1,26 @@
+updating relational db schema:
+	- neet time to update the data
+	- usually done by stopping the app
+	- hard to revert if something goes wrong
+
+problem
+	- avoiding down time while upgrading schema
+	- upgrading all docs can take too much time
+	-don't want to update all docs
+
+solution:
+	- use field to save the version of the schema
+	- modify the app to handle all versions	
+	- choose a strategy to migrate the docs
+
+use cases
+	- apps that use db deployed in production env and heavily used
+	- lots of legacy data
+
+pros
+	- no downtime
+	- control migration
+	- less future technical debt
+
+cons 
+	- may need 2 indexes for the same field during migration

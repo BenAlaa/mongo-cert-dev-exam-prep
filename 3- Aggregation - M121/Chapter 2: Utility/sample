@@ -1,0 +1,13 @@
+- selects a random sample of documents:
+    - {
+        $sample: {
+            size: <N, number of documents>
+        }
+    }
+    - if (N <= 5% num of docs and 
+          collection has >= 200 docs and 
+          sample is first stage) 
+      then
+         - sudo random cursor will select the docs
+      else
+         - in memory random sort then select the docs

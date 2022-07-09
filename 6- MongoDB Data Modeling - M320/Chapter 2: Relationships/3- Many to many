@@ -1,0 +1,11 @@
+1- Embedding
+	- Array of sub docs in many side
+	- Array of cub docs in the other many side
+	- the most queried is the main consideration
+		- embed the least queried in the most queried
+		- results in duplication
+		- indexing an Array
+
+2- Referencing
+	- Array of references in the many
+	- Array of references in the other many

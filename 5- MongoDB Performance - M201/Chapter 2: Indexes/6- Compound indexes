@@ -1,0 +1,19 @@
+- index on two or more fields
+
+- the main index is the first index then the subsequent indexes are indexing within that main index and so on
+	- index {name: 1, age: 1}
+	- {name: "a", age: "1"}, {name: "a", age: "2"}
+	- {name: "b", age: "3"}, {name: "b", age: "8"}
+
+- index prefixes:
+	- index {a: 1, b: 1, c: 1}
+	- prefixes:
+		- {a: 1}
+		- {a: 1, b: 1}
+	- prefexis will use the index although it doesn't utilize the whole index the remaining will be ignored
+
+- sorting in compound indexes:
+	- sorting can utilize index if the filter fields combined with sort fields gives index prefix
+		- find({a: "", b: ""}).sort({c: 1})  will work for index {a: 1, b: 1, c: 1}
+	- using single prefix ---> both directions will utilize the index
+	- else, won't use index unless all is in the same direction as the index or all are reversed

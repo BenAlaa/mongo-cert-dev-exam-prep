@@ -1,0 +1,7 @@
+- overriding default mongodb index selection with hint()
+
+- some times query optimizer uses another index that we want it to use
+
+- db.collection.find().hint({ a: 1, b: 1 }) index shape
+- db.collection.find().hint("a_b_1") index name
+

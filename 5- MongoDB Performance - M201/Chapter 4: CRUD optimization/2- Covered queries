@@ -1,0 +1,15 @@
+- very performant
+- satisfied entirely by index
+- 0 docs needs to be examined
+
+- a covered query has:
+	- all index fields are the only fields in the predicate
+	- projection to return only fields from index fields and the fields must be stated explicitly
+	- no fields in the query are equal to null (i.e. {"field" : null} or {"field" : {$eq : null}} ).
+
+- no fetch stage is present in the query plan
+
+- can't be used when:
+	- indexed fields are arrays
+	- indexed fields are embedded docs
+	- if the index doesn't contain the shard key in sharded deployment

@@ -1,0 +1,21 @@
+problem:
+	- costly computation or manipulation of data
+	- executed frequently on the same data produces the same result
+
+Solution:
+	- perform operations and store the result in the appropriate doc and collection
+	- if needed to redo the operations, keep the source
+
+use cases:
+	- iot
+	- event sourcing
+	- time series data
+	- frequent aggregatoin framework queries
+
+benefits:
+	- faster reads 
+	- saving cpu resources
+
+cons:
+	- can be overused
+	- difficult to identify

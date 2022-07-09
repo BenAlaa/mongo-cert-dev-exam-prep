@@ -740,3 +740,632 @@ find /usr/bin/ -name "mongo*"
 - Mongodump can create a data file  and a metadata file, but mongoexport just create a data file only.
 - By default, mongoexport send the output to standard output, but mongodump write to a file
 - mongoexport is slower because its convert every file to json before export
+
+
+
+
+
+
+# Chapter 2: Replication
+---
+
+## What is Replication?
+Replication is the concept of manitaining multiple copies of your data.
+This because you never assume that all your servers will be all over available.
+To make sure at anytime any server is down you can still access your data **Availability**.
+
+## MongoDB Replica Set
+- Replicaset is a group of mongod nodes that work on the same data
+- consists of one primary node that handles the data and secondary nodes that sync up with the primary
+- if the primary fails, a secondary node takes it's place in a process called **failover** where nodes vote for which node will become the primary in a process called **election**
+- Default Replication protocol ----> **pv1** which is based on **raft** protocol
+- Read more about the [Simple Raft Protocol](http://thesecretlivesofdata.com/raft/) and the [Raft Consensus Algorithm](https://raft.github.io/).
+- Operation log **oplog** is statement based log for each node in the Replicaset that keeps track for all write operations.
+- every time a write is successfully applied to the primary node will get recorded in the oplog
+- Arbiter member in a Replicaset doesn't hold data, cann't be primary and is used only as a tie-breaker in leader-primary node election
+- odd number of nodes is prefered for election
+- if you used even number make sure the magority are available as you will need to have at least 3 nodes available
+- any failer or vote happen is add as s topology change in the replica set configuration which is defined in one node and shared between all the nodes
+- the election will not happen if the majority isn't available for example the majority of 4 is 3 so if 2 nodes down the election won't happen
+- Avoid using Arbiter
+- We can defin a **hidden** node to provide a read only node or have a copy off the data hidden of the application.
+- We can set a node as **delayed** for a specific time to work as a backup
+- Replicaset can have up to 50 member
+- only max of 7 nodes can be voting to minimize election time
+
+
+
+## Setting Up a Replica Set
+We will independtly launching 3 mongod process and try to connect theme to replicate data for us.
+
+1. adding keyFile to security section in config file so all members can authentiacte each other using this keyFile
+2. This is adition to client auth
+3. Create keyFile using openssl   ```openssl rand -base64 741 > /var/mongodb/pki/m103-keyfile```
+4. change permission of file to read permission ```chmod 600 /var/mongodb/pki/103-keyfile```
+5. add replication.replSetName to config file
+
+   ```
+   storage:
+      dbPath: /var/mongodb/db/node1
+   net:
+      bindIp: 192.168.103.100,localhost
+      port: 27011
+   security:
+      authorization: enabled
+      keyFile: /var/mongodb/pki/m103-keyfile
+   systemLog:
+      destination: file
+      path: /var/mongodb/db/node1/mongod.log
+      logAppend: true
+   processManagement:
+      fork: true
+   replication:
+      replSetName: m103-example
+   ```
+
+6. Create the dbPath folder ```mkdir -p  /var/mongodb/db/node1```
+7. Start mongod using this config file ```mongod -f node1.conf```
+8. create other 2 nodes with the same replSetName and keyfile just edit the dbPath, logPath and port by coping the configurations file
+   ```
+   cp  node1.conf node2.conf
+   cp  node1.conf node3.conf
+   ```
+   ```
+   storage:
+      dbPath: /var/mongodb/db/node2
+   net:
+      bindIp: 192.168.103.100,localhost
+      port: 27012
+   security:
+      authorization: enabled
+      keyFile: /var/mongodb/pki/m103-keyfile
+   systemLog:
+      destination: file
+      path: /var/mongodb/db/node2/mongod.log
+      logAppend: true
+   processManagement:
+      fork: true
+   replication:
+      replSetName: m103-example
+   ```
+   ```
+   storage:
+      dbPath: /var/mongodb/db/node3
+   net:
+      bindIp: 192.168.103.100,localhost
+      port: 27013
+   security:
+      authorization: enabled
+      keyFile: /var/mongodb/pki/m103-keyfile
+   systemLog:
+      destination: file
+      path: /var/mongodb/db/node3/mongod.log
+      logAppend: true
+   processManagement:
+      fork: true
+   replication:
+      replSetName: m103-example
+   ```
+9. Create the dbPath folder for node2 ```mkdir -p  /var/mongodb/db/node2```
+10. Start mongod using this config file of node2 ```mongod -f node2.conf```
+11. Create the dbPath folder for node3 ```mkdir -p  /var/mongodb/db/node3```
+12. Start mongod using this config file of node3 ```mongod -f node3.conf```
+13. Connecting to node1: ```mongo --port 27011```
+14. Initiating the replica set on one like node1 ``` rs.initiate()```
+15. Creating a user: to use to connect to the rest node using it
+      ```
+      use admin
+      db.createUser({
+         user: "m103-admin",
+         pwd: "m103-pass",
+         roles: [
+            {role: "root", db: "admin"}
+         ]
+      })
+      ```
+16. Exiting out of the Mongo shell and connecting to the entire replica set:
+      ```
+      exit
+      mongo --host "m103-example/192.168.103.100:27011" -u "m103-admin"
+      -p "m103-pass" --authenticationDatabase "admin"
+      ```
+17. Getting replica set status: ```rs.status()```
+18. Adding other members to replica set:
+      ```
+      rs.add("m103:27012")
+      rs.add("m103:27013")
+      ```
+19. Getting an overview of the replica set topology: ```rs.isMaster()```
+20. Stepping down the current primary: ```rs.stepDown()```
+21. Checking replica set overview after election: ```rs.isMaster()```
+
+
+## Replication Configuration Document
+- BSON doc that holds the configuration of the replicaset and is shared across all nodes
+- JSON Object that define the configuration options of our replica set.
+- Can be configured manually from the shell
+- There are set of mongo shell  replication helper methods that make it easier to manage :
+   ```
+   rs.add
+   rs.initiate
+   res.remove
+   rs.reconfig
+   rs.config || rs.conf
+   ```
+
+
+```
+{
+    _id: string,  // the name of the replicaset
+    version: int,  // gets incremented every time the configuration changes
+    members: [
+        {
+            _id: string, // can't be changed once set
+            host: string,
+            arbiterOnly: bool,
+            hidden: bool,  // Not visible to app handles specific operations
+            priority: number,  // range (0 - 1000) higher priority members tend to be elected more often, 
+                               // changing the priority triggers an election
+                               // priority 0 is excluded from being a primary  (arbiteronly and hidden should be 0)
+            slaveDelay: int  // the riplication delay of the node in seconds
+                             // setting this setting implies that the node will be hidden and the priority is 0
+        },
+        ...
+    ]
+}
+```
+
+
+## Replication Commands
+**rs.status()**:
+  - reports health of the nodes
+  - uses data from heartbeats so it can be seconds out of date
+  - optime: the last time the node did an operation from the oplog
+
+**rs.isMaster()**:
+  - describes the role of the node
+
+**db.serverStatus()['repl']**:
+  - is a section of the server status full output
+  - similar to isMaster
+  - rbid field doesn't appear on isMaster and it shows the number of times a rollback occured on the node
+
+**rs.printReplicationInfo()**:
+  - returns the oplog data relative to the current node
+  - contains timestamp to the first and last oplog event in the node
+
+
+
+## Local DB
+
+- Display all databases (by default, only admin and local):
+   ```
+   mongo
+   show dbs
+   ```
+- Display collections from the local database (this displays more collections from a replica set than from a standalone node):
+   ```
+   use local
+   show collections
+   ```
+- has startup_log collection only in standalone node
+- has several collections on replicset:
+   >me
+   oplog.rs
+   replser.electoin
+   replser.minvali
+   startup_log
+   system.replset
+   system.rollback.id
+   
+   **oplog.rs**: 
+   - is the center point of the replication mechanism 
+   - It keeps track of all statements that is being replicated
+   - is a capped collection (has max size)
+   - if you run ```var stats = db.oplog.rs.stats()``` then:
+    - ```stats.capped --> true``` if a capped collection
+    - ```stats.size``` --> Get current size of the oplog
+    - ```stats.maxSize ```--> Get size limit of the oplog 
+   - by default it has 5% of the free disk space but can be cofigured through oplogSizeMB option under replication in the config file
+   - is created after creating replset
+   - once the limit is reached, the early operations are overriden
+   - the replication window: 
+      - the time it takes to fill the oplog completely and start overriding old statements
+      - important to determine the time a node can afforded to be down without requireing human intervention to help it recover
+      - it's inversly proportional to the system load
+   - one operation can reslut in many entries in the oplog such as updateMany
+   - data written in local dbs won't be replicated
+
+
+
+## Reconfiguring a Running Replica Set
+
+Let's assume we have a replica set of 3 nodes and we need to add 2 more 1 as Arbiter and 1 as secodary node.
+- **node4.conf**:
+   ```
+   storage:
+      dbPath: /var/mongodb/db/node4
+   net:
+      bindIp: 192.168.103.100,localhost
+      port: 27014
+   systemLog:
+      destination: file
+      path: /var/mongodb/db/node4/mongod.log
+      logAppend: true
+   processManagement:
+      fork: true
+   replication:
+      replSetName: m103-example
+   ```
+- **arbiter.conf**:
+   ```
+   storage:
+      dbPath: /var/mongodb/db/arbiter
+   net:
+      bindIp: 192.168.103.100,localhost
+      port: 28000
+   systemLog:
+      destination: file
+      path: /var/mongodb/db/arbiter/mongod.log
+      logAppend: true
+   processManagement:
+      fork: true
+   replication:
+      replSetName: m103-example
+   ```
+
+- Starting up mongod processes for our fourth node and arbiter:
+   ```
+   mongod -f node4.conf
+   mongod -f arbiter.conf
+   ```
+- From the Mongo shell of the replica set, adding the new secondary and the new arbiter:
+   ```
+   rs.add("m103:27014")
+   rs.addArb("m103:28000")
+   ```
+- Checking replica set makeup after adding two new nodes:
+   ```
+   rs.isMaster()
+   ```
+
+- Removing the arbiter from our replica set:
+   ```
+   rs.remove("m103:28000")
+   ```
+- Assigning the current configuration to a shell variable we can edit, in order to reconfigure the replica set:
+   ```
+   cfg = rs.conf()
+   ```
+
+- Editing our new variable cfg to change topology - specifically, by modifying cfg.members:
+
+   ```
+   cfg.members[3].votes = 0
+   cfg.members[3].hidden = true
+   cfg.members[3].priority = 0
+   ```
+- Updating our replica set to use the new configuration cfg:
+   ```
+   rs.reconfig(cfg)
+   ```
+
+
+
+## Reads and Writes on a Replica Set
+- By default read and write operations aren't allowed on secondary nodes
+- to enable reading on a secondary node: ```rs.slaveOk()```
+- writing is forbidden to replica sets
+- if no nodes are secondary the primary will be secondary and we will not be able to write to the replica set
+
+
+## Failover and Elections
+suppose the following scenario: 
+  - replicaset with 3 nodes 1p and 2s
+  - to do a rolling upgrade we do:
+      1. stop one of the secondary and bring it up with  the new version
+      2. do the same to the other secondary node
+      3. perform an election by running rs.stepDown() -> this will lead to that the primary node becomes a secondary
+      4. do the step 1 to the secondary that was a primary
+
+
+**Election**: happens when
+  - there is a change in topology
+  - reconfiguring a replicaset
+  - the primary node becomes unavailable    (must elect a new node to be primary)
+  - using rs.stepDown()    (must elect a new node to be primary)
+
+
+
+  **Election candidates**:
+  - if all nodes has the same priority then the one with the latest data will vote for itself and ask other nodes for support
+
+  - if two nodes run for election simaltaneously in case of odd number of nodes ---> the odd node will decide the winner
+   - in case of even number of nodes ---> a tie can happen then election will be repeated
+  
+  - a node with priority of 1 or higher can be elected
+  - a node with priority of 0 can't run election and can't be primary, but can vote
+  - a higher priority has a higher chance of being a primary
+  - **Note** when running ```rs.isMaster()``` nodes that can't be elected show up as passives
+  - if a primary can't reach any voting secondary, it wil automatically step down and be a secondary and if no primary in the replset then it won't be reachable
+
+
+## Write Concerns
+- write concerns are acknowledgement mechanism to increase durability
+- for a write to be durable, majority of the nodes must acknowledge the success of the write
+- **Levels**:
+  1. 0          ```no wait for acknowledgement means the write might successed or failed```
+  2. 1          ```(Default) wait for acknowledgment from primary only```
+  3. greater than 1        ```waint for primary and one or more secondary members```
+  4. majority   ```wait for the majority of the replicaset```
+
+- **Options** :
+  1. ```wtimeout```: (int) the time to wait for write concern before marking the operation as failed
+  2. ```j```: (bool) node acknowledge the write and commit it in the journal files before returning an acknowledge. if j is false then the node will report success when the write stored in memory and before waiting for journaling
+
+- **Write Concern Commands**:
+   - insert
+   - update 
+   - delete 
+   - findandmodify
+- write concern is 1 by default
+```
+db.collection.insert(
+   { }, 
+   { writeConcern: { w: "majority", wtimeout: 60 } }
+)
+```
+
+
+
+## Read Concerns
+- returns the data if it has been saved to a number of nodes
+**Levels**: 
+  - ```local``` --> (default) most recent data to the cluster on primary only and doesn't guarantee that it is durable
+  - ```available``` --> same as local and default against secondary differs in sharded clusters
+  - ```majority```  --> returns if in a majority of the nodes not the latest note supported in MMApv1 storage engine
+  - ```linearizable``` -->  like majority and read your only write functionality
+
+**Notes**:
+- local & available  ->> fast and latest but not safe
+- majority  ->> fast and safe not latest
+- linearizable  ->> safe and latest - not fast - single doc reads only
+- for secondary reads ->> local & available is fast only but not allwasy latest
+
+
+**READ preference**
+- Route read operations to secondary nodes
+- is a driver-side setting
+modes: 
+  - ```primary``` (default) only to primary
+  - ```primaryPreferred```  (primary and if not available the secondary)
+  - ```secondary```   routes to only secondary
+  - ```secondaryPreferred```    if no secondary then primary
+  - ```nearest```  the least network latency to the host
+
+
+
+
+
+
+
+# Chapter 3: Sharding
+---
+## What is Sharding?
+- higher cost of vertical scaling
+- scaling horizontaly by divid the data into multiple instances
+- impact on operational tasks like (backup)  ---> backing up several 2 TB hard disks in parallel is faster than 20 TB single hard disk
+- single threaded operations benefit from distributed environment ex: aggregation framework
+- geographically distributed datasets
+
+
+## Sharding Architecture
+- we setting up a router process that accept queries from clients this router process called **Mongos**
+- We can have any number of Mongos processes 
+- Mongos using Metadata stored in config servers that has info about where each piece is stored.
+- We need to make sure that the Metadata is highly availabe using replication 
+- We deploy a Config Server Replica Set.
+- **Primary Shard**
+   - every database has a primary shard
+   - that holds non-sharded collections
+   - merge aggregation data from different shards
+
+
+
+
+## Setting Up a Sharded Cluster
+The minumum requirementsd to have a sharded cluster is to have (mongos process, one shard, CSRS)
+
+
+
+1. deploy config server replicaset with mongod config file csrs_1.conf, csrs_2.conf, csrs_3.conf:
+   ```
+   sharding:
+      clusterRole: configsvr
+   replication:
+      replSetName: m103-csrs
+   security:
+      keyFile: /var/mongodb/pki/m103-keyfile
+   net:
+      bindIp: localhost,192.168.103.100
+      port: 26001
+   systemLog:
+      destination: file
+      path: /var/mongodb/db/csrs1.log
+      logAppend: true
+   processManagement:
+      fork: true
+   storage:
+      dbPath: /var/mongodb/db/csrs1
+   ```
+   ```
+   sharding:
+      clusterRole: configsvr
+   replication:
+      replSetName: m103-csrs
+   security:
+      keyFile: /var/mongodb/pki/m103-keyfile
+   net:
+      bindIp: localhost,192.168.103.100
+      port: 26002
+   systemLog:
+      destination: file
+      path: /var/mongodb/db/csrs2.log
+      logAppend: true
+   processManagement:
+      fork: true
+   storage:
+      dbPath: /var/mongodb/db/csrs2
+   ```
+   ```
+   sharding:
+      clusterRole: configsvr
+   replication:
+      replSetName: m103-csrs
+   security:
+      keyFile: /var/mongodb/pki/m103-keyfile
+   net:
+      bindIp: localhost,192.168.103.100
+      port: 26003
+   systemLog:
+      destination: file
+      path: /var/mongodb/db/csrs3.log
+      logAppend: true
+   processManagement:
+      fork: true
+   storage:
+      dbPath: /var/mongodb/db/csrs3
+   ```
+2. Starting the three config servers:
+   ```
+   mongod -f csrs_1.conf
+   mongod -f csrs_2.conf
+   mongod -f csrs_3.conf
+   ```
+3. Connect to one of the config servers:```mongo --port 26001```
+4. Initiating the CSRS: ```rs.initiate()```
+5. Creating super user on CSRS:
+   ```
+   use admin
+   db.createUser({
+      user: "m103-admin",
+      pwd: "m103-pass",
+      roles: [
+         {role: "root", db: "admin"}
+      ]
+   })
+   ```
+6. Authenticating as the super user: ```db.auth("m103-admin", "m103-pass")```
+7. Add the second and third node to the CSRS:
+   ```
+   rs.add("192.168.103.100:26002")
+   rs.add("192.168.103.100:26003")
+   ```
+8. prepare mongos config file:
+   ```
+   sharding:
+      configDB: m103-csrs/192.168.103.100:26001,192.168.103.100:26002,192.168.103.100:26003
+   security:
+      keyFile: /var/mongodb/pki/m103-keyfile
+   net:
+      bindIp: localhost,192.168.103.100
+      port: 26000
+   systemLog:
+      destination: file
+      path: /var/mongodb/db/mongos.log
+      logAppend: true
+   processManagement:
+      fork: true
+   ```
+9. Start the mongos server: ```mongos -f mongos.conf```
+10. Connect to mongos:
+   ```
+   mongo --port 26000 --username m103-admin --password m103-pass --authenticationDatabase admin
+   ```
+11. Check sharding status: ```sh.status()```
+12. Updated configuration for node1.conf:
+   ```
+   sharding:
+      clusterRole: shardsvr
+   storage:
+      dbPath: /var/mongodb/db/node1
+      wiredTiger:
+         engineConfig:
+            cacheSizeGB: .1
+   net:
+      bindIp: 192.168.103.100,localhost
+      port: 27011
+   security:
+      keyFile: /var/mongodb/pki/m103-keyfile
+   systemLog:
+      destination: file
+      path: /var/mongodb/db/node1/mongod.log
+      logAppend: true
+   processManagement:
+      fork: true
+   replication:
+      replSetName: m103-repl
+   ```
+13. Updated configuration for node2.conf:
+   ```
+   sharding:
+      clusterRole: shardsvr
+   storage:
+      dbPath: /var/mongodb/db/node2
+      wiredTiger:
+         engineConfig:
+            cacheSizeGB: .1
+   net:
+      bindIp: 192.168.103.100,localhost
+      port: 27012
+   security:
+      keyFile: /var/mongodb/pki/m103-keyfile
+   systemLog:
+      destination: file
+      path: /var/mongodb/db/node2/mongod.log
+      logAppend: true
+   processManagement:
+      fork: true
+   replication:
+      replSetName: m103-repl
+   ```
+14. Updated configuration for node3.conf:
+   ```
+   sharding:
+      clusterRole: shardsvr
+   storage:
+      dbPath: /var/mongodb/db/node3
+      wiredTiger:
+         engineConfig:
+            cacheSizeGB: .1
+   net:
+      bindIp: 192.168.103.100,localhost
+      port: 27013
+   security:
+      keyFile: /var/mongodb/pki/m103-keyfile
+   systemLog:
+      destination: file
+      path: /var/mongodb/db/node3/mongod.log
+      logAppend: true
+   processManagement:
+      fork: true
+   replication:
+      replSetName: m103-repl
+   ```
+15. Connecting directly to secondary node (note that if an election has taken place in your replica set, the specified node may have become primary):
+   ```
+   mongo --port 27012 -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+   ```
+16. Shutting down node:
+   ```
+   use admin
+   db.shutdownServer()
+   ```
+17. Restarting node with new configuration:
+   ```
+   mongod -f node2.conf
+   ```
+18. Stepping down current primary:
+   ```rs.stepDown()```
+19. Adding new shard to cluster from mongos:
+   ```sh.addShard("m103-repl/192.168.103.100:27012")```

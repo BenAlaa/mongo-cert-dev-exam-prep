@@ -1,0 +1,8 @@
+- {
+    $redact: <expression>
+}
+
+- expression must resolve to one of the following:
+  - $$DESCEND  ---> retains current level and inspect the following sub document
+  - $$PRUNE  ---> exclude the current level from the document
+  - $$KEEP  ---> keep the current level in the document

@@ -1,0 +1,25 @@
+MEMORY:
+    - very important
+    - mongodb engines are either very dependant on ram or has fully in memory execution
+    - Aggregations 
+    - Index traversing 
+    - write operations (are first performed on ram allocated pages) 
+    - query engine 
+    - connections (1MB per connection) all rely on ram
+CPU:
+    - Storage engine
+    - concurrency model (wired tiger has non locking concurrency control mechanism)
+    - page compression
+    - data calculation
+    - aggergation framework operations
+    - map reduce
+IO:
+    - Data presistence on disk 
+    - the faster the disk, the faster the db operations
+    - RAID architectures
+    - RAID 10 is the best for mongodb
+    - RAID 0, 5 or 6 musn't be used
+    - using several disks benifits mongodb by distributing the IO loads
+    - the faster the network, the better performance with client apps
+    - distributed architecture in mongodb means it needs low latency connection between different 
+        components to enhance performance

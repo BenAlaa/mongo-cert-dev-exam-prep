@@ -1,0 +1,22 @@
+- performing geo queries in the pipeline
+- must be the first stage in the pipeline
+- requires that the collection has one and only one geo index
+difference between geoNear and near:
+    - $near can't be used in aggregations
+    - $near can't work with sharded cluters
+    - queries using $near can't use special indexes like $text
+
+{
+    $geoNear: {
+        near:                  required   <the location to search near>
+        distanceField:         required   <field to insert in returned documents to save distance> 
+        spherical:             required   <to signal whether using a 2d sphere index>
+        minDistance:           optional   <in meters>
+        maxDistance:           optional   <in meters>
+        query:                 optional   <allows querying source documents>
+        includeLocs:           optional   <used to indetify which locations was used>
+        limit:                 optional   <max number of docs returned>
+        num:                   optional   <same as limit>
+        distanceMultiplier:    optional   <the factor to multiply all distances to convert to any desired unit>
+    }
+}

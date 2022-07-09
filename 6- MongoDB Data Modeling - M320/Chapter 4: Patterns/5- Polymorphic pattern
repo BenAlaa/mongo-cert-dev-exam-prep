@@ -1,0 +1,16 @@
+problem:
+	- objects more similar than different
+	- want to keep objects in the same collection
+
+solution:
+	- field tracks the type of document or subdocument
+	- applicaion has different code paths per type
+
+use cases:
+	- single view
+	- product catalog
+	- content management
+
+pros:
+	- easy
+	- allow query across single collection

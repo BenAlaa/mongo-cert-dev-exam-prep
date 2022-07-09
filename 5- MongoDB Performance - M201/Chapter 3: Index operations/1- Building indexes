@@ -1,0 +1,19 @@
+- Hyprid index build new in 4.2
+
+types of index builds:
+	- foreground index build:
+		- very performant
+		- locks the entire db until the build is done
+		- createIndex({a: 1}) prior to 4.2
+
+	- background index build:
+		- doesn't lock the db
+		- less performant
+		- it uses incremental approach to create the index
+		- the index resulting is less efficient than the foreground index
+		- createIndex({a: 1}, {background: true}) prior to 4.2
+
+	- Hyprid:
+		- the only option available since 4.2
+		- no locks on the db
+		- performant

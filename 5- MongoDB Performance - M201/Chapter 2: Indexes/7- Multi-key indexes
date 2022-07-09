@@ -1,0 +1,8 @@
+- indexing on a field that is an array
+
+- for each entry in the array, the server will create a separate index key.
+- it can also work in emedded docs inside the array
+	- arr: [{a: "", b: ""}, ...] ---> creatIndex({arr.a: 1})
+
+- only one array index field is allowed per compound index
+- don't support covered queries

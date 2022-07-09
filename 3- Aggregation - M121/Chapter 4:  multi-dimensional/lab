@@ -1,0 +1,59 @@
+#1
+----
+
+
+pipline = [
+   {
+        $match: {
+        "imdb.rating": { $exists: true, $ne: '' },
+        "metacritic": { $exists: true, $ne: '', $ne: null }
+        }
+   },
+   {
+    $project: {
+        name: 1,
+        metacritic: 1,
+        "imdb.rating": 1
+    }
+   },
+   {
+        $facet: {
+            "imdb2": [ 
+                { 
+                    $sort: {
+                        "imdb.rating": -1,
+                        "metacritic": -1
+                    } 
+                },
+                {
+                    $limit: 10
+                }
+            ],
+            "metacritic": [
+                {
+                    $sort: {
+                        "metacritic": -1,
+                        "imdb.rating": -1
+                    } 
+                },
+                {
+                    $limit: 10
+                }
+            ]
+        }
+   },
+   {
+       $project: {
+           topInBoth: {
+               $setIntersection: ["$imdb2", "$metacritic"]
+           }
+       }
+   },
+   {
+    $project: {
+        count: {
+            $size: "$topInBoth"
+        }
+    }
+   }
+]

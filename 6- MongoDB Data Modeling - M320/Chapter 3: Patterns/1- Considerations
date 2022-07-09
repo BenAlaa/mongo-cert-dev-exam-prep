@@ -1,0 +1,26 @@
+Using pattern may lead to
+
+- Duplication of data across documents
+- Data staleness in some pieces of data
+- Data integrity issues 
+	- may have to write application code to ensure referential integrity
+
+
+1- Duplications:
+	- results from embedding info in documents for faster access
+		- ex: embedding the customer address in the shipment info document so it can't 
+				be changed after the order is shipped if user changed his address
+	- represents challenges to insure correctness and consistency
+
+2- Staleness:
+	- Data is changing constantly that updating can cause performance issues
+	- challenges in insuring data quality and reliability
+	- can be addressed using batch update and change streams
+
+3- Referential integrity:
+	- linking info between docs and not supporting cascading deletes or foreign keys
+	- challenges in data quality
+	- solutions:
+		- using change streams
+		- embedding data in single doc
+		- using multi-doc transactions

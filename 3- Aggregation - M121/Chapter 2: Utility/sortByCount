@@ -1,0 +1,8 @@
+- Groups incoming documents based on the value of a specified expression, 
+    then computes the count of documents in each distinct group and sort by it in descending order
+
+- Each output document contains two fields: an _id field containing the distinct 
+    grouping value, and a count field containing the number of documents belonging to 
+    that grouping or category.
+
+- { $sortByCount:  <expression> } You can specify any expression except for a document literal.

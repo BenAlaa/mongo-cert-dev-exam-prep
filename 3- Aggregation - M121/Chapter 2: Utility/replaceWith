@@ -1,0 +1,5 @@
+{
+    $replaceWith: <expression_results_to_document>
+}
+
+replaces the entire document with the result of the expression

@@ -1,0 +1,47 @@
+accumlator expressions can be used in group and project
+in group, they work on field in each document
+in project they work on array fields within the document
+
+1- $sum:
+    - {$sum: <expression>}
+    - each time a doc is categorized in the group, its sum is called
+    - if in project, expression must resolve to array
+    - if in group, expression must resolve to single value in each doc
+
+2- $avg:    
+    - {$avg: <expression>}
+    - will be calculated for each doc that match
+    - if in project, expression must resolve to array
+    - if in group, expression must resolve to single value in each doc
+
+3- $max:
+    - {$max: <expression>}
+    - if in project, expression must resolve to array
+    - if in group, expression must resolve to single value in each doc
+
+4- $min:
+    - {$min: <expression>}
+    - if in project, expression must resolve to array
+    - if in group, expression must resolve to single value in each doc
+
+5- $stdDevPop: 
+    - {$stdDevPop: <expression>}
+    - if in project, expression must resolve to array
+    - if in group, expression must resolve to single value in each doc
+
+5- $stdDevSamp: 
+    - {$stdDevSamp: <expression>}
+    - if in project, expression must resolve to array
+    - if in group, expression must resolve to single value in each doc
+
+6- $first:
+    - { $first: <expression> }
+    - Returns the value that results from applying an expression to the first document in a group of documents. 
+    - Only meaningful when documents are in a defined order.
+
+6- $mergeObjects:
+    - {
+        $mergeObjects: <expression>
+    }
+    - if in project or any stage other than (group, bucket, bucketAuto), expression must resolve to array of documents
+    - if in group, bucket or bucketAuto, expression must resolve to single document

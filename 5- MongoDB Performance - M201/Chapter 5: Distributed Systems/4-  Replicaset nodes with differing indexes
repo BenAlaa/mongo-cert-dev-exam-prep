@@ -1,0 +1,17 @@
+use secondary with differing indexes for:
+	- analytics
+	- reporting delayed consistency data
+	- text search
+
+considerations: it should be
+	- with priority=0
+	- hidden node
+	- delayed secondary
+	- they should not be allowed to be primary as they may not have the indexes to handle application queries
+
+Steps to create index on secondary only:
+	1- shut down the server
+	2- bring up the secondary in stand alone mode
+	3- create the index
+	4- bring up the replicaset again
+	

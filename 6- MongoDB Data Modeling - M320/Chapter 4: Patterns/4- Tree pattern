@@ -1,0 +1,9 @@
+problem:	
+- representing heirarical structures
+
+solution
+	- parent reference (immediate parent discovery and tree updates) parent: 'a'
+	- children reference (easy to navigate to children nodes and tree descending) children: [d, e, f]
+	- array of ancestors (getting all ancestors in one query and navigating upwards) 
+			ancestors: [a, b, c]
+	- materialized paths (querying for ancestors uses a single index with regex) ancestors: '.a.b.c'

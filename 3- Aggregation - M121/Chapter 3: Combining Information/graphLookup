@@ -1,0 +1,41 @@
+{
+    $graphLookup: {
+        from: <lookup table>,
+        startWith: <the value to start recursive search from (expression)>, 
+        connectFromField: <field in the from col used to perform the next recursive query>,
+        coonectToField: <the field that is queried against the recursive>,
+        as: <name of the field in the resulting document>,
+        maxDepth: <number of iterations to do>,
+        depthField: <field name in the resulting doc to save the number of iterations ot reach the node>,
+        restrictSearchWithMatch: <specifies a filter when doing the lookup in the from collection>
+        You cannot use any aggregation expression in this filter. For example, a query document such as
+            { lastName: { $ne: "$lastName" } } will not work in this context
+    }
+}
+
+The $graphLookup search process is summarized below:
+
+1- Input documents flow into the $graphLookup stage of an aggregation operation.
+2- $graphLookup targets the search to the collection designated by the from parameter 
+    (see below for full list of search parameters).
+
+3- For each input document, the search begins with the value designated by startWith.
+
+4- $graphLookup matches the startWith value against the field designated by connectToField in other 
+    documents in the from collection.
+
+5- For each matching document, $graphLookup takes the value of the connectFromField and checks 
+    every document in the from collection for a matching connectToField value. For each match, 
+    $graphLookup adds the matching document in the from collection to an array field named by 
+    the as parameter.
+
+    This step continues recursively until no more matching documents are found, or until the 
+    operation reaches a recursion depth specified by the maxDepth parameter. 
+    $graphLookup then appends the array field to the input document. 
+    $graphLookup returns results after completing its search on all input documents.
+
+- IMPORTANT NOTES:  
+    - it may use more memory, use allowDiskUse but it still may exceed the memory available (100 MB per pipeline)
+    - the connectToField should be indexed field
+    - the from collection can't be sharded
+    - $match won't be optimized if not related to graphLookup stage

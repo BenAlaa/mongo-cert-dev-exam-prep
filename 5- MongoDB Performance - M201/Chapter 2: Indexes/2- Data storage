@@ -1,0 +1,29 @@
+- each collection has a file.wt
+- each index has a file.wt
+
+- database catalog: _mdb_catalog.wt
+	- database catalog contains info about collections and indexes that this mongod has.
+
+
+Running mongod with these flags:
+	- '--directoryperdb' ---> each db has its own directory
+	- '--wiredTigerDirectoryForIndexes': directory for indexes and directory for collections inside the db folder
+
+** benefits of the previous structure:
+	- increasing performance:
+		- if multiple disks are available, then distributing these files across different 
+			disks (using symbolic links) will increase IO parrallization.
+
+- mongodb can store data in compressed format which will increase the performance of data presistence 
+	but will require more cpu cycles
+
+- writing data from memory to disk will be triggered by two methods:
+	- user side: by specifying write concern that syncs operation with other instances like 
+		{ writeConcern: { w: 3 } } which means at least one primary and 2 secondaries
+	- periodical internal process that regulates how data will be flushed and synced (sync periods)
+
+- journaling:
+	- journal flushes are performed using group commits in compressed format.
+	- all writes are atomic
+	- { writeConcern: { j: true } } wont acknowledge a write unless it has been written in the journal
+	- will have impact on performance as it will wait until data is written on disk

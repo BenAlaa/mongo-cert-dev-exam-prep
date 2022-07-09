@@ -1,0 +1,40 @@
+- public test suite
+- private testing environment
+
+types of benchmarking:
+	- low level benchmarking:
+		- I/O
+		- scheduler performance
+		- memory allocation and transfer speed
+		- db server performance
+		- thread performance
+		...
+		tools used:
+		- sysbench
+	
+	- db server benchmarking:
+		- dataset load
+		- writes per second
+		- reads per second
+		- balanced workloads
+		- read/write ratio
+		tools:
+		- YCSB
+		- TPC
+
+	- distributed systems benchmarking:
+		- linearization of reads and writes
+		- serialization of requests
+		- fault tolerance if node fails
+		tools:
+		- highbench
+		- jepsen
+
+benchmarking conditions:
+	- POCDriver tool to test mongodb workloads
+	- benchmarking anti-patterns:
+		- database swap replace (turning tables in sql dbs to collections)
+		- using mongo shell for write and reads requests
+		- using mongoimport to test writes response
+		- local laptop to run tests
+		- using default mongodb parameters

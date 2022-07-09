@@ -1,0 +1,27 @@
+phases:
+	1- Describing workloads:
+		- requirement document
+		- Business domain analysis
+		- production logs and stats if migrating existing db
+
+	2- Indentifying relationships between entities:
+		- pieces of info that can be grouped together (entity)
+		- Indentifying the relationships between entities
+		- decide either keeping as embedded doc or in a new collection
+
+	3- applyin design patterns to address performance requirements
+
+
+-------------------------------------------------------------------------
+Simplicity:
+	- limitied expectations
+	- low resources requiremens cpu ram disk
+	- fewer collections and embedding documents
+	- less disk access
+
+Performance:
+	- need more resources
+	- Sharding
+	- fast read, writes
+	- larger teams needed
+	- must adhere to the phases of methodology

@@ -1,0 +1,14 @@
+Cardinalities:
+	- 1 - 1  grouped in the same doc
+	- 1 - m  
+	- m - m
+
+- one to many or many to many:
+	- it depends on how much likely the many will be
+	- in father - children situation, it's likely to be max of 5 or 10
+	- in follower - following situation, it may be 10 or 10,000
+
+- Numerical Notation:  [min, median, max]
+	- minimum
+	- most likely, median
+	- maximum

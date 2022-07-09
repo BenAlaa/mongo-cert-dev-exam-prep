@@ -1,0 +1,17 @@
+mongodb balancer identifies the shard with too many chunks and distribute them to other shards
+
+balancer runs on primary member of config servers starting 3.2 before it ran in mongos
+
+when it detects a migration threshold, it starts a balancer round
+
+the balancer can migrate chunks in parallel but a shard can only participate in asingle migration at a time
+
+number of chunks to migrate in a round = floor(n / 2)  n = #shards
+
+then a nother round takes place until the shards are balaced
+
+balancer affects performance
+
+sh.startBalacer(timeout, interval) timeout-> how mins to wait to start or stop the balancer
+sh.stopBalancer(timeout, interval) interval-> how mins the client wait to check the status of the balancer again
+sh.serBalacerState(bool) true, flase on/off

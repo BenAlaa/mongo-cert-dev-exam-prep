@@ -1,0 +1,24 @@
+problem
+	- working set is too big, bigger than ram
+	- solution:
+		- add ram
+		- scale with sharding
+		- reduce the size of the working set (the pattern)
+
+solution:
+	- divide the document into two collections
+		- one that is frequently accessed data 
+		- one with the remaining data
+
+use cases:
+	- list of reviews of a product
+	- list of comments on an article
+	- list of actors in a movie
+
+pros:
+	- smaller working set
+	- shorter disk accesse
+
+cons:
+	- duplication
+	- more round trips to server 

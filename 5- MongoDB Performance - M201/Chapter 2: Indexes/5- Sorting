@@ -1,0 +1,13 @@
+- two ways:
+	- in memory
+	- using index
+
+- in memory:
+	- all data will be stored in ram
+	- then sorting algorithm is run
+	- max memory usage in sorting is 32MB if exceeded then the server will abort the operation
+
+- using indexes: 
+	- docs are ordered while saved in index using the index field
+	- the docs returned will be sorted by the index then no need for additional sorting
+	- direction will be forward if the sorting order is the same as the index and backward if not (asc - desc)

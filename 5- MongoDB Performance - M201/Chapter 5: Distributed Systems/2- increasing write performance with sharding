@@ -1,0 +1,12 @@
+- picking a good shard key
+- chunk max size is 64MB
+- we need to insure that the chunks are distributed evenly across shards
+- high cardinality, low frequency, low rate of change for shard key
+- compound keys have high cardinality and low frequency
+- jumbo chunk is a chunk with the same lower and upper bound
+- monotonically changing shard keys should be avoided unless they are used in 
+		compound keys and shouldn't be the first field
+		using them this way increases the cardinality
+
+- ordered bulkwrites are less performant on sharded cluster
+- unordered bulkwrites can utilize parallization in sharded cluster

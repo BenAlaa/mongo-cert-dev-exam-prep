@@ -1,0 +1,9 @@
+1- If match stage uses shard key
+    - all the pipeline will be routed to that shard
+    - the results will be returned to mongos
+
+2- No match
+    - some stages will be splitted on each shard
+    - then the results will be merged together on a single shard
+    - it normally happens on random shard unless ($out, $facet, $lookup, $graphLookup) are used
+    - in those cased the primary shard will do the merging

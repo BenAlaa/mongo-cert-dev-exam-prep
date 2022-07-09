@@ -1,0 +1,24 @@
+problem:
+	- avoiding too many docs
+	- avoiding too big docs
+	- 1-m relationship that can't be embedded
+
+Solution
+	- define the optimal amount of data to group together
+	- create arrays to store the information in the main object
+	-it is basically 1-m embedded -> you get N docs each having many/N sub docs
+
+use cases:
+	- iot
+	- data warehousing
+	- lots of info associated with one object
+
+pros:
+	- good balance in the number of acess and size of data
+	- makes data more manageable
+	- easy to prune data
+
+cons:
+	- can lead to poor query results if not designed correctly
+	- less friendly to bi tools
+	
