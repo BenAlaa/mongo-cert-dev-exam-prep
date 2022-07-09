@@ -483,3 +483,29 @@ MongoDB is a High Performance Database and to support your requirements it will 
             }
         },
       ```
+
+
+### Understanding Explain
+- used to analyse the query
+
+- info provided by explain:
+	- indexes used
+	- indexes used to provide sort
+	- indexes used to provide projections
+	- how selective is the index
+	- which part of the plan is the most expensive
+
+- to create explainable object: 
+	- exp = db.people.explain()
+	- exp.find()
+	- parameters to pass to explain func:
+		- "queryPlanner" --default (won't run the query) ***
+		- "executionStats"  (runs and returns specific stats about the execution)
+		- "allPlansExecution"  (runs then gives all alternative plans)
+
+- in case of sharded cluster:
+	- each shard will use a winning plan
+	- then the plans are merged on the mongos
+
+- **Note**
+    > the memory limit for execute in memory sort is 33554432 byte around 32MB and if your query exceed this limit then the sort will canceled
