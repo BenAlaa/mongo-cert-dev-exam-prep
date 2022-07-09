@@ -1,7 +1,0 @@
-- solves the problem of slow queries
-
-- collection scan: is going through all docs in the collection 1 by 1   O(n) linear
-- the data structure used to store indexes ----> B-tree
-- indexing overhead:
-    - slow writes ---> the tree will be updated
-    - slow updates and deletes ---> the tree will be adjusted if the indexed field changes

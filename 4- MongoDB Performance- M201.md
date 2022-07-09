@@ -50,3 +50,436 @@ MongoDB is a High Performance Database and to support your requirements it will 
 
 # Chapter 2: MongoDB Indexes
 ---
+
+### Introduction to Indexes
+- What is the problem Indexes try to solve?
+    - Slow queries as instead of looking to all documents one by one [Collection Scan] O(n) we got the documentID from the index directly like the concept of dictionry index.
+- **Collection Scan**: is going through all docs in the collection 1 by 1   O(n) linear
+- The data structure used to store indexes **B-tree**
+- The index is associate with one or more fields.
+- The _id field is automaticlly indexed on all collections
+- **Index Overhead**:
+    - slow writes ---> the tree will be updated
+    - slow updates and deletes ---> the tree will be adjusted if the indexed field changes
+    - We don't have too many unneeded indexes which will affect the performance of insert, delete and update operations.
+> You can learn more about indexes by visiting the [Indexes Section](https://www.mongodb.com/docs/manual/indexes/?jmp=university) of the MongoDB Manual.
+
+
+
+### How Data is Stored on Disk
+- The MongoDB use to store data will differ between different storage engines that mongodb support(MMAPv1 - Wired Tiger - Other).
+- Each Collection has a ```file.wt```
+- Each Index has a ```file.wt```
+
+- **Database Catalog**: ```_mdb_catalog.wt```
+	- Database Catalog contains info about collections and indexes that this mongod has.
+
+
+- **Running mongod with these flags**:
+    - ```--directoryperdb``` ---> each db has its own directory
+    - ```--wiredTigerDirectoryForIndexes``` ---> directory for indexes and directory for collections inside the db folder
+    - **benefits of the previous structure**:
+	    - increasing performance: if multiple disks are available, then distributing these files across different disks (using symbolic links) will increase IO parrallization.
+        - We can make a disk for collections and disk for indexes.
+
+- mongodb can store data in compressed format which will increase the performance of data presistence but will require more cpu cycles
+
+- writing data from memory to disk will be triggered by two methods:
+	- user side: by specifying write concern that syncs operation with other instances like { writeConcern: { w: 3 } } which means at least one primary and 2 secondaries
+	- periodical internal process that regulates how data will be flushed and synced (sync periods)
+
+- **Journaling**:
+	- journal flushes are performed using group commits in compressed format.
+	- all writes are atomic
+	- { writeConcern: { j: true } } wont acknowledge a write unless it has been written in the journal
+	- will have impact on performance as it will wait until data is written on disk
+
+> You can learn more about how data is stored on disk in MongoDB by visiting the [MongoDB Storage FAQ](https://www.mongodb.com/docs/manual/faq/storage/?jmp=university) in the MongoDB Manual.
+
+
+### Single Field Indexes
+- the simplest index that can be created
+- ```db.<collection>.createIndex({ <field>: <direction> })```
+
+- **Key Features**: 
+	- Key from only one field
+	- Can find a single value for the indexed field
+	- Can find a range of values
+	- Can use dot notation to index fileds in subdocuments
+	- Can be used to finding several distict values in a single query
+
+- ```db.people.find({"ssn": "720-38-5636"}).explain("executionStats")``` ---> to view extra info about the query
+    ```
+    queryPlanner: {
+        namespace: 'myFirstDatabase.people',
+        indexFilterSet: false,
+        parsedQuery: { ssn: { '$eq': '720-38-5636' } },
+        maxIndexedOrSolutionsReached: false,
+        maxIndexedAndSolutionsReached: false,
+        maxScansToExplodeReached: false,
+        winningPlan: {
+            stage: 'COLLSCAN',<--------
+            filter: { ssn: { '$eq': '720-38-5636' } },
+            direction: 'forward'
+        },
+        rejectedPlans: []
+    },
+    executionStats: {
+        executionSuccess: true,
+        nReturned: 1, <----------------|
+        executionTimeMillis: 81,       |
+        totalKeysExamined: 0,          |
+        totalDocsExamined: 50474,<-----|
+        executionStages: {
+            stage: 'COLLSCAN', <-------
+            filter: { ssn: { '$eq': '720-38-5636' } },
+            nReturned: 1,
+            executionTimeMillisEstimate: 27,
+            works: 50476,
+            advanced: 1,
+            needTime: 50474,
+            needYield: 0,
+            saveState: 50,
+            restoreState: 50,
+            isEOF: 1,
+            direction: 'forward',
+            docsExamined: 50474 <----------
+        }
+    }
+    ```
+- We will notice that the winning plan is COLLSCAN that means in order to returned 1 document it made full collection scan for 50474 documents which is not efficient
+- Let's create an index on ssn
+- ```db.people.createIndex({ ssn: 1 })``` to create index on ssn field
+- 1 means that the index is ordered in ASC
+
+- explainable object:
+	- ```let exp = db.people.explain("executionStats")```
+	- then we can run our queries on the exp object
+	- ```exp.find({"ssn": "720-38-5636"})```
+-   ```
+    queryPlanner: {
+        namespace: 'myFirstDatabase.people',
+        indexFilterSet: false,
+        parsedQuery: { ssn: { '$eq': '720-38-5636' } },
+        maxIndexedOrSolutionsReached: false,
+        maxIndexedAndSolutionsReached: false,
+        maxScansToExplodeReached: false,
+        winningPlan: {
+            stage: 'FETCH',<-----
+            inputStage: {
+                stage: 'IXSCAN',<----
+                keyPattern: { ssn: 1 },
+                indexName: 'ssn_1',
+                isMultiKey: false,
+                multiKeyPaths: { ssn: [] },
+                isUnique: false,
+                isSparse: false,
+                isPartial: false,
+                indexVersion: 2,
+                direction: 'forward',
+                indexBounds: { ssn: [ '["720-38-5636", "720-38-5636"]' ] }
+            }
+        },
+        rejectedPlans: []
+    },
+    executionStats: {
+        executionSuccess: true,
+        nReturned: 1,<-------------------|
+        executionTimeMillis: 1,          |
+        totalKeysExamined: 1,<-----------|--- the number of used indexed keys
+        totalDocsExamined: 1,<-----------|
+        executionStages: {
+            stage: 'FETCH',
+            nReturned: 1,
+            executionTimeMillisEstimate: 0,
+            works: 2,
+            advanced: 1,
+            needTime: 0,
+            needYield: 0,
+            saveState: 0,
+            restoreState: 0,
+            isEOF: 1,
+            docsExamined: 1,
+            alreadyHasObj: 0,
+            inputStage: {
+                stage: 'IXSCAN',
+                nReturned: 1,
+                executionTimeMillisEstimate: 0,
+                works: 2,
+                advanced: 1,
+                needTime: 0,
+                needYield: 0,
+                saveState: 0,
+                restoreState: 0,
+                isEOF: 1,
+                keyPattern: { ssn: 1 },
+                indexName: 'ssn_1',
+                isMultiKey: false,
+                multiKeyPaths: { ssn: [] },
+                isUnique: false,
+                isSparse: false,
+                isPartial: false,
+                indexVersion: 2,
+                direction: 'forward',
+                indexBounds: { ssn: [ '["720-38-5636", "720-38-5636"]' ] },
+                keysExamined: 1,
+                seeks: 1,
+                dupsTested: 0,
+                dupsDropped: 0
+            }
+        }
+    },
+    ```
+- **Note**:
+    > If more than one fields are queried and one of them is indexed the indexed results will be returned then filtered by the other fields
+
+    - ``` db.examples.insertOne({_id: 0, subdoc: {indexedField: "value", otherField: "value"}})```
+    - ``` db.examples.insertOne({_id: 1, subdoc: {indexedField: "wrongValue", otherField: "value"}})```
+    - ```db.examples.createIndex({"subdoc.indexedField": 1})```
+    - ```db.examples.explain("executionStats").find({"subdoc.indexedField": "value"})```
+    - ```
+        queryPlanner: {
+            namespace: 'myFirstDatabase.examples',
+            indexFilterSet: false,
+            parsedQuery: { 'subdoc.indexedField': { '$eq': 'value' } },
+            maxIndexedOrSolutionsReached: false,
+            maxIndexedAndSolutionsReached: false,
+            maxScansToExplodeReached: false,
+            winningPlan: {
+                stage: 'FETCH',
+                inputStage: {
+                    stage: 'IXSCAN',<-------
+                    keyPattern: { 'subdoc.indexedField': 1 },
+                    indexName: 'subdoc.indexedField_1',
+                    isMultiKey: false,
+                    multiKeyPaths: { 'subdoc.indexedField': [] },
+                    isUnique: false,
+                    isSparse: false,
+                    isPartial: false,
+                    indexVersion: 2,
+                    direction: 'forward',
+                    indexBounds: { 'subdoc.indexedField': [ '["value", "value"]' ] }
+                }
+            },
+            rejectedPlans: []
+        },
+        executionStats: {
+            executionSuccess: true,
+            nReturned: 1,
+            executionTimeMillis: 0,
+            totalKeysExamined: 1,
+            totalDocsExamined: 1,
+            executionStages: {
+                stage: 'FETCH',
+                nReturned: 1,
+                executionTimeMillisEstimate: 0,
+                works: 2,
+                advanced: 1,
+                needTime: 0,
+                needYield: 0,
+                saveState: 0,
+                restoreState: 0,
+                isEOF: 1,
+                docsExamined: 1,
+                alreadyHasObj: 0,
+                inputStage: {
+                    stage: 'IXSCAN',
+                    nReturned: 1,
+                    executionTimeMillisEstimate: 0,
+                    works: 2,
+                    advanced: 1,
+                    needTime: 0,
+                    needYield: 0,
+                    saveState: 0,
+                    restoreState: 0,
+                    isEOF: 1,
+                    keyPattern: { 'subdoc.indexedField': 1 },
+                    indexName: 'subdoc.indexedField_1',
+                    isMultiKey: false,
+                    multiKeyPaths: { 'subdoc.indexedField': [] },
+                    isUnique: false,
+                    isSparse: false,
+                    isPartial: false,
+                    indexVersion: 2,
+                    direction: 'forward',
+                    indexBounds: { 'subdoc.indexedField': [ '["value", "value"]' ] },
+                    keysExamined: 1,
+                    seeks: 1,
+                    dupsTested: 0,
+                    dupsDropped: 0
+                }
+            }
+        }```
+
+- We can use Single Field Index to query on range of values
+    - ```exp.find({ssn: {$gte: "555-00-0000", $lt: "556-00-0000"}})```
+    -   ```
+        queryPlanner: {
+            namespace: 'myFirstDatabase.people',
+            indexFilterSet: false,
+            parsedQuery: {
+            '$and': [
+                { ssn: { '$lt': '556-00-0000' } },
+                { ssn: { '$gte': '555-00-0000' } }
+            ]
+            },
+            maxIndexedOrSolutionsReached: false,
+            maxIndexedAndSolutionsReached: false,
+            maxScansToExplodeReached: false,
+            winningPlan: {
+            stage: 'FETCH',
+            inputStage: {
+                stage: 'IXSCAN',
+                keyPattern: { ssn: 1 },
+                indexName: 'ssn_1',
+                isMultiKey: false,
+                multiKeyPaths: { ssn: [] },
+                isUnique: false,
+                isSparse: false,
+                isPartial: false,
+                indexVersion: 2,
+                direction: 'forward',
+                indexBounds: { ssn: [ '["555-00-0000", "556-00-0000")' ] }
+            }
+            },
+            rejectedPlans: []
+        },
+        executionStats: {
+            executionSuccess: true,
+            nReturned: 49,<-----------
+            executionTimeMillis: 8,
+            totalKeysExamined: 49,
+            totalDocsExamined: 49,<------------
+            executionStages: {
+                stage: 'FETCH',
+                nReturned: 49,
+                executionTimeMillisEstimate: 4,
+                works: 50,
+                advanced: 49,
+                needTime: 0,
+                needYield: 0,
+                saveState: 0,
+                restoreState: 0,
+                isEOF: 1,
+                docsExamined: 49,
+                alreadyHasObj: 0,
+                inputStage: {
+                    stage: 'IXSCAN',
+                    nReturned: 49,
+                    executionTimeMillisEstimate: 0,
+                    works: 50,
+                    advanced: 49,
+                    needTime: 0,
+                    needYield: 0,
+                    saveState: 0,
+                    restoreState: 0,
+                    isEOF: 1,
+                    keyPattern: { ssn: 1 },
+                    indexName: 'ssn_1',
+                    isMultiKey: false,
+                    multiKeyPaths: { ssn: [] },
+                    isUnique: false,
+                    isSparse: false,
+                    isPartial: false,
+                    indexVersion: 2,
+                    direction: 'forward',
+                    indexBounds: { ssn: [ '["555-00-0000", "556-00-0000")' ] },
+                    keysExamined: 49,
+                    seeks: 1,
+                    dupsTested: 0,
+                    dupsDropped: 0
+                }
+            }
+        },
+        ```
+
+    > You can learn more about single field indexes by visiting the [Single Field Indexes](https://www.mongodb.com/docs/manual/core/index-single/?jmp=university) Section of the MongoDB Manual.
+
+- We can use a single field index to query in a set of single values
+    - ```exp.find({ssn: {$in: ['001-29-9184', '177-45-0950', '265-67-9973']}})```
+    - ```
+        queryPlanner: {
+            namespace: 'myFirstDatabase.people',
+            indexFilterSet: false,
+            parsedQuery: { ssn: { '$in': [ '001-29-9184', '177-45-0950', '265-67-9973' ] } },
+            maxIndexedOrSolutionsReached: false,
+            maxIndexedAndSolutionsReached: false,
+            maxScansToExplodeReached: false,
+            winningPlan: {
+            stage: 'FETCH',
+            inputStage: {
+                stage: 'IXSCAN',
+                keyPattern: { ssn: 1 },
+                indexName: 'ssn_1',
+                isMultiKey: false,
+                multiKeyPaths: { ssn: [] },
+                isUnique: false,
+                isSparse: false,
+                isPartial: false,
+                indexVersion: 2,
+                direction: 'forward',
+                indexBounds: {
+                ssn: [
+                    '["001-29-9184", "001-29-9184"]',
+                    '["177-45-0950", "177-45-0950"]',
+                    '["265-67-9973", "265-67-9973"]'
+                ]
+                }
+            }
+            },
+            rejectedPlans: []
+        },
+        executionStats: {
+            executionSuccess: true,
+            nReturned: 3,
+            executionTimeMillis: 0,
+            totalKeysExamined: 6,
+            totalDocsExamined: 3,
+            executionStages: {
+                stage: 'FETCH',
+                nReturned: 3,
+                executionTimeMillisEstimate: 0,
+                works: 6,
+                advanced: 3,
+                needTime: 2,
+                needYield: 0,
+                saveState: 0,
+                restoreState: 0,
+                isEOF: 1,
+                docsExamined: 3,
+                alreadyHasObj: 0,
+                inputStage: {
+                    stage: 'IXSCAN',
+                    nReturned: 3,
+                    executionTimeMillisEstimate: 0,
+                    works: 6,
+                    advanced: 3,
+                    needTime: 2,
+                    needYield: 0,
+                    saveState: 0,
+                    restoreState: 0,
+                    isEOF: 1,
+                    keyPattern: { ssn: 1 },
+                    indexName: 'ssn_1',
+                    isMultiKey: false,
+                    multiKeyPaths: { ssn: [] },
+                    isUnique: false,
+                    isSparse: false,
+                    isPartial: false,
+                    indexVersion: 2,
+                    direction: 'forward',
+                    indexBounds: {
+                    ssn: [
+                        '["001-29-9184", "001-29-9184"]',
+                        '["177-45-0950", "177-45-0950"]',
+                        '["265-67-9973", "265-67-9973"]'
+                    ]
+                    },
+                    keysExamined: 6,
+                    seeks: 3,
+                    dupsTested: 0,
+                    dupsDropped: 0
+                }
+            }
+        },
+      ```
