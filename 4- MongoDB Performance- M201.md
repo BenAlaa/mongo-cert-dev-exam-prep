@@ -509,3 +509,24 @@ MongoDB is a High Performance Database and to support your requirements it will 
 
 - **Note**
     > the memory limit for execute in memory sort is 33554432 byte around 32MB and if your query exceed this limit then the sort will canceled
+
+
+
+### Sorting with Indexes
+- There are two ways to execute sorting:
+	1. In memory
+	2. Using index
+
+- **In memory**:
+    - all documents in collections are stored on disk in unknown order
+    - the server will return the documents in the order it find them
+	- all data will be stored in RAM
+	- then sorting algorithm is run
+	- max memory usage in sorting is 32MB if exceeded then the server will abort the operation
+
+- **Using indexes**: 
+	- docs are ordered while saved in index using the index field
+	- the docs returned will be sorted by the index then no need for additional sorting
+	- direction will be forward if the sorting order is the same as the index and backward if not (asc - desc)
+
+> You can learn more about sorting with indexes by visiting the [Use Indexes to Sort Query Results](https://www.mongodb.com/docs/manual/tutorial/sort-results-with-indexes/?jmp=university) section of the MongoDB Manual.
