@@ -530,3 +530,38 @@ MongoDB is a High Performance Database and to support your requirements it will 
 	- direction will be forward if the sorting order is the same as the index and backward if not (asc - desc)
 
 > You can learn more about sorting with indexes by visiting the [Use Indexes to Sort Query Results](https://www.mongodb.com/docs/manual/tutorial/sort-results-with-indexes/?jmp=university) section of the MongoDB Manual.
+
+
+
+
+
+### Querying on Compound Indexes
+- Compound index is an index on two or more fields
+- Even Index is conmpound of more than one field it still on dimentional.
+- We can use compound index to query a range of values too.
+- The main key is the first key in the index then the subsequent keys are indexing within that main index and so on
+	- index {name: 1, age: 1}
+	- {name: "a", age: "1"}, {name: "a", age: "2"}
+	- {name: "b", age: "3"}, {name: "b", age: "8"}
+
+- **Index Prefixes**:
+    - Index prefixes are the beginning subsets of indexed fields.
+	- For example consider the following compound index ```{"item": 1, "location": 1, "stock": 1}```
+	- The index has the followning index prefixes:
+		- ```{item: 1}```
+		- ```{item: 1, location: 1}```
+	- prefexis will use the index although it doesn't utilize the whole index the remaining will be ignored
+
+> You can learn more about compound indexes by visiting the [Compound Indexes](https://www.mongodb.com/docs/manual/core/index-compound/?jmp=university) and [Create Indexes to Support Your Queries](https://www.mongodb.com/docs/manual/tutorial/create-indexes-to-support-queries/?jmp=university) sections of the MongoDB Manual.
+
+
+
+### When you can sort with compound Indexes ?
+- Sorting can utilize index if the filter fields combined with sort fields gives index prefix
+    - ```find({a: "", b: ""}).sort({c: 1})```  will work for index ```{a: 1, b: 1, c: 1}```
+- Using single prefix ---> both directions will utilize the index
+- else, won't use index unless all is in the same direction as the index or all are reversed
+
+
+> You can learn more about when you can sort with indexes by visiting the [Use Indexes to Sort Query Results](https://www.mongodb.com/docs/manual/tutorial/sort-results-with-indexes/?jmp=university) section of the MongoDB Manual.
+
