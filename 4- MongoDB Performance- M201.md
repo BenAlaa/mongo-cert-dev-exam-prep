@@ -676,3 +676,45 @@ MongoDB is a High Performance Database and to support your requirements it will 
 
 
 > You can learn more about collations by visiting the [Collations](https://www.mongodb.com/docs/manual/reference/collation/?jmp=university) section of the MongoDB Manual.
+
+
+
+
+
+### Wildcard Index Type
+- New in 4.2
+- Allows a dynamically create indexes on all fields or subset of fields
+
+- how it works:
+	- mongodb analysis the document and indexes all fields in the document
+	- for arrays, indexes for each value like multi-key
+	- for subdocs, indexes for each field in the sub document
+
+- ```db.<collection>.createIndex({'$**': 1})```
+
+- it creates one virtual single field index at execution time
+- if filtering by multiple fields, create multiple plans using multiple single indexes then the query planner uses the score to determine which one to use.
+	
+- To creating wild card index on sub docs only:
+	- ```db.<collection>.createIndex({"field.$**": 1})``` only subdoc and fields in the subdoc will be indexed
+
+- **Wild card projection option**:
+	- specifies set of fields to include or execlude from the index
+	- ```db.<collection>.createIndex({'$**'}, {wildcardProjection: {a: 1}}) ```index only ```a``` and all its subpaths if it's a subdoc
+	- ```db.<collection>.createIndex({'$**'}, {wildcardProjection: {a: 0}})``` index all but ```a```
+
+- A **Covered Query** is a query that can be satisfied entirely using an index and does not have to examine any documents.
+- An index covers a query when all of the following apply:
+	- all the fields in the query are part of an index, and
+	- all the fields returned in the results are in the same index.
+	- no fields in the query are equal to null (i.e. {"field" : null} or {"field" : {$eq : null}} ).
+
+- wild card index can only cover a query if the query is on a single field
+
+
+- **Used Cases Examples**: 
+	- unpredictable work loads
+	- queries with many fields
+	- arbitrary query patterns
+	- implementing the attribute pattern
+
