@@ -565,3 +565,17 @@ MongoDB is a High Performance Database and to support your requirements it will 
 
 > You can learn more about when you can sort with indexes by visiting the [Use Indexes to Sort Query Results](https://www.mongodb.com/docs/manual/tutorial/sort-results-with-indexes/?jmp=university) section of the MongoDB Manual.
 
+
+
+
+### Multikey Indexes
+- Indexing on a field that is an array is a Multikey Index
+
+- for each entry in the array, the server will create a separate index key.
+- it can also work in emedded docs inside the array
+	- arr: [{a: "", b: ""}, ...] ---> creatIndex({arr.a: 1})
+- For each indexed document, we can have at most one index field whose value is an array
+- only one array index field is allowed per compound index
+- Multikey indexes don't support covered queries
+
+> You can learn more about multikey indexes by visiting the [Multikey Indexes](https://www.mongodb.com/docs/manual/core/index-multikey/?jmp=university) section of the MongoDB Manual.

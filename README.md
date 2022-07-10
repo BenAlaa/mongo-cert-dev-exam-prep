@@ -33,6 +33,7 @@
 
 
 # M001 - MongoDB Basics <a name="m001"></a>
+Learn the fundamentals of MongoDB.
 ## Chapter 1: What is MongoDB? <a id="m001-ch1"></a>
 -----------------------------
 - NoSQL Document DB
