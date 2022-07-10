@@ -641,3 +641,38 @@ MongoDB is a High Performance Database and to support your requirements it will 
 - **textScore**:
 	- is the relevance of the result to the text query
 	- ```find({}, {score: {$meta: "textScore"}})```
+
+
+
+### Collations
+
+- Collations allows users to specify language specific rules for string comparison
+    ```
+    {
+        locale: string,   the ICU supported locale
+        caseLevel: boolean,
+        caseFirst: string,
+        strength: int,
+        numericOrder: boolean,
+        alternate: string,
+        maxVariable: string,
+        backwards: boolean
+    }
+    ```
+
+- Where to specify collation:
+	- In collection level ```db.createCollection("name", {collation: {...}})``` 
+    - For a specific requests like queries and aggregations:
+        - ```db.find().collation({...})``` as a iterator method
+        - ```db.aggregate([{}, {collation: {...}}])``` as a stage 
+
+	- For Indexes ```db.createIndex({}, {collation: {...}})```
+        - To using this index for quering the collation specified with the index must match the one specified with this key on collection level
+
+- **Benifits of using Collations**:
+	- correctness by matching certain locale
+	- it has a marginal performance impact
+	- allows the use of case-insensitive indexes by using strength: 1 which will ignore case and diacritics 
+
+
+> You can learn more about collations by visiting the [Collations](https://www.mongodb.com/docs/manual/reference/collation/?jmp=university) section of the MongoDB Manual.
