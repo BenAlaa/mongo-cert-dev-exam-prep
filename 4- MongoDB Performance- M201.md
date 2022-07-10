@@ -620,3 +620,24 @@ MongoDB is a High Performance Database and to support your requirements it will 
 > You can learn more about partial indexes by visiting the [Partial Indexes](https://www.mongodb.com/docs/manual/core/index-partial/?jmp=university) section of the MongoDB Manual.
 
 
+
+
+### Text Indexes
+- Querying docs based on words in a certain text field
+
+- ```createIndex({a: "text"})```
+- ```db.collection.find({ $text: { $search: "..." } })```
+- similar to multi-key indexes will split the text and create index key for each unique word in the string
+- Text indexes are case insensitive
+- Will be effected if the text is long
+    - More keys to examine
+    - Increased index size
+    - Increased time to build index
+    - Decreased write  performance
+- One solution for long text index is to use compound index
+- text querys uses or between the delimited words
+	- "a b" will match a or b
+
+- **textScore**:
+	- is the relevance of the result to the text query
+	- ```find({}, {score: {$meta: "textScore"}})```
