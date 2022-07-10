@@ -579,3 +579,44 @@ MongoDB is a High Performance Database and to support your requirements it will 
 - Multikey indexes don't support covered queries
 
 > You can learn more about multikey indexes by visiting the [Multikey Indexes](https://www.mongodb.com/docs/manual/core/index-multikey/?jmp=university) section of the MongoDB Manual.
+
+
+### Partial Indexes
+- Index only a subset of the collection
+
+- ```
+    db.collection.creatIndex(
+	    {a: 1, b: 1},
+	    {partialFilterExpression: {c: {$gte: 5}}}
+    )
+    ```
+	the above will index docs with c >= 5
+
+- Can be used with multi-key indexes
+
+- **Sparse index**: Is a spectial case of partial index (only index if the fields exist)
+	- ```
+        db.collection.creatIndex(
+		    {a: 1},
+		    {sparse: true}
+	    )
+        ```    
+	- the above is equal to
+        ```
+        db.collection.creatIndex(
+            {a: 1},
+            {partialFilterExpression: {a: {$exists: true}}}
+        )
+        ```
+
+- In order to use a partial index, the filter query must be guarateed to match a subset of the documents, specified by the partialFilterExpression 
+
+- **Partial Index Restrections**:
+    - You can't specify both the partialFilterExpression and the sparse options
+    - _id indexes can't be partial indexed
+    - Shard key index can't be partial index
+
+
+> You can learn more about partial indexes by visiting the [Partial Indexes](https://www.mongodb.com/docs/manual/core/index-partial/?jmp=university) section of the MongoDB Manual.
+
+
