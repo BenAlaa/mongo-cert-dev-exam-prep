@@ -749,3 +749,27 @@ MongoDB is a High Performance Database and to support your requirements it will 
 
 > You can learn more about building indexes by visiting the [Index Build Operations](https://www.mongodb.com/docs/manual/core/index-creation/?jmp=university) section of the MongoDB Manual.
 
+
+
+### Query Plans
+- Are a series of stages that feen into one another to run a query
+
+- For a single query, many plans can be proposed based on the indexes
+- Only one winning plan is used
+
+- **How it works**:
+	1. Fresh query comes to the db for the first time
+	2. The service looks for all indexes on the collection
+	3. Choose indexes viable for the query (candidate indexes)
+	4. The query optimizer uses candidate indexes to generate candidate plans
+	5. The quey planner is emperical query planner --> means all candidate plans will be tried over a short period of time then choose which plan performs best
+	6. Then mongodb caches the winning plan for that query shape
+	7. The plans will be removed from cache if:
+		- The server is restarted
+		- Index is rebuilt
+		- Index is created or dropped
+		- If threshold is reached, that is amount of work done by the first portion of the query exceeds the work done by the winning plan by a factor of 10
+
+
+> You can learn more about query plans by visiting the [Query Plans](https://www.mongodb.com/docs/manual/core/query-plans/?jmp=university) section of the MongoDB Manual.
+
