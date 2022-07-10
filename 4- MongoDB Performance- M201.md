@@ -1,6 +1,6 @@
-# Chapter 1: Introduction
+## Chapter 1: Introduction
 ---
-## Hardware Considerations & Configurations
+### Hardware Considerations & Configurations
 MongoDB is a High Performance Database and to support your requirements it will require good hardware.
 ### Let's discuss how mongodb uses hardware resources:
 #### 1. Memory
@@ -48,7 +48,7 @@ MongoDB is a High Performance Database and to support your requirements it will 
 
 
 
-# Chapter 2: MongoDB Indexes
+## Chapter 2: MongoDB Indexes
 ---
 
 ### Introduction to Indexes
@@ -717,4 +717,35 @@ MongoDB is a High Performance Database and to support your requirements it will 
 	- queries with many fields
 	- arbitrary query patterns
 	- implementing the attribute pattern
+
+
+
+## Chapter 3: Index Operations
+---
+### Building Indexes
+- Hyprid index build new in Mongodb 4.2
+
+- **Types of index builds**:
+	1. **Foreground** index build:
+		- very performant
+		- locks the entire db until the build is done
+		- ```createIndex({a: 1})``` 
+        - prior to 4.2
+
+	2. **Background** index build:
+		- doesn't lock the db
+		- less performant
+		- it uses incremental approach to create the index
+		- the index resulting is less efficient than the foreground index
+		- ```createIndex({a: 1}, {background: true})```
+        - prior to 4.2
+
+	3. Hyprid:
+		- This is the only option available since 4.2
+        - Using the best of both worlds:
+            - No locks on the db like the Background
+            - Performant like Forground
+
+
+> You can learn more about building indexes by visiting the [Index Build Operations](https://www.mongodb.com/docs/manual/core/index-creation/?jmp=university) section of the MongoDB Manual.
 
