@@ -773,3 +773,11 @@ MongoDB is a High Performance Database and to support your requirements it will 
 
 > You can learn more about query plans by visiting the [Query Plans](https://www.mongodb.com/docs/manual/core/query-plans/?jmp=university) section of the MongoDB Manual.
 
+
+
+### Forcing Indexes with Hint
+- Overriding default mongodb index selection with hint()
+- Sometimes query optimizer uses another index that we want it to use
+- ```db.collection.find().hint({ a: 1, b: 1 })``` index shape
+- ```db.collection.find().hint("a_b_1")``` index name
+- Use it with caution
