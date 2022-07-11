@@ -781,3 +781,32 @@ MongoDB is a High Performance Database and to support your requirements it will 
 - ```db.collection.find().hint({ a: 1, b: 1 })``` index shape
 - ```db.collection.find().hint("a_b_1")``` index name
 - Use it with caution
+
+
+### Resource Allocation for Indexes
+- Indexes help in:
+	- Optimizing queries
+	- Decreasing response time
+
+- ```db.stats()```      shows the index sizes
+- ```db.col.stats()```  shows the index sizes per collection
+
+- **Disk** 
+    - Size isn't a big issue
+	- If no space is available, the index won't be created
+	- If we use a separate disk to store the indexes, insure it has enough disk space
+
+- **Memory**:
+	- we should have enough space to accomodate the indexes
+	- if not, then disk access is required to traverse index file and will slow down queries
+	- ```db.col.stats({indexDetails: true})```  shows the index sizes per collection
+
+- **Edge Cases**:
+	- Occasional reports
+		- Indexes used in operational workloads should be in Memory
+		- Indexes used in BI tools do not have to be always in memory
+		- Usuallly BI tools should only talk to a secondary not the primary node then their related indexes should also be created only on those nodes
+	- Right-end-side index incerements
+        - Indexes on fields that grow monotonically ex: counts, dates, incremental ids should not always be in Memory
+        - The B-Tree would be unbalanced and tend to grow to the right hand side
+        - Only the right hand side is needed to be in memory (new added data)
