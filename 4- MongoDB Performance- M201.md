@@ -880,3 +880,26 @@ MongoDB is a High Performance Database and to support your requirements it will 
 
 
 > You can learn more about optimizing your CRUD operations by visiting the [Create Indexes to Support Your Queries](https://www.mongodb.com/docs/manual/tutorial/create-indexes-to-support-queries/?jmp=university), [Use Indexes to Sort Query Results](https://www.mongodb.com/docs/manual/tutorial/sort-results-with-indexes/?jmp=university), and [Create Queries that Ensure Selectivity](https://www.mongodb.com/docs/manual/tutorial/create-queries-that-ensure-selectivity/?jmp=university) sections of the MongoDB Manual.
+
+
+
+### Covered Queries
+- **What are covered queries?**
+    - Very performant way to service the queries to our database
+    - Satisfied entirely by index
+    - 0 docs needs to be examined
+
+- A covered query has:
+	- all index fields are the only fields in the predicate
+	- projection to return only fields from index fields and the fields must be stated explicitly
+	- no fields in the query are equal to null (i.e. ```{"field" : null}``` or ```{"field" : {$eq : null}}``` ).
+    - No fetch stage is present in the query plan
+
+- You can't cover a query if:
+	- Any of the indexed fields are arrays
+	- Any of the indexed fields are embedded docs
+	- When run against a mongos if the index does not contain the shard key
+
+
+> You can learn more about covered queries by visiting the [Query Optimization](https://www.mongodb.com/docs/manual/core/query-optimization/?jmp=university) section of the MongoDB Manual.
+
