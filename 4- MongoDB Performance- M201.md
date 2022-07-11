@@ -855,3 +855,28 @@ MongoDB is a High Performance Database and to support your requirements it will 
 		- Using mongoimport to test writes response
 		- Local laptop to run tests
 		- Using default mongodb parameters
+
+
+
+
+
+
+## Chapter 4: CRUD Optimization
+---
+### Optimizing your CRUD Operations
+- Index selectivity ---> minimizing index keys scanned
+	- Range queries aren't very selective
+	- Equality is very selective
+	- ```createIndex({the more selective, the less selective, ...})```
+	- To use index for both sorting and filtering, the query predicate should be all equalities and no range
+	
+	- ```find({a: "", b: {$gt: 1}}).sort(c: 1)```
+		- an index with shape ```{a: 1, b: 1, c: 1}``` won't be use in sorting
+		that's because the prefix used to reach the sort will be [a, b, c] and b is range, but index with shape ```{a: 1, c: 1, b: 1}``` will be used in sorting because the prefix used to reach sort is [a, c] which has equality only
+
+
+- **Equality, Sort, Range rule**: best way to define an index would be: {equality_condition, sort_conditions, range_conditions}
+
+
+
+> You can learn more about optimizing your CRUD operations by visiting the [Create Indexes to Support Your Queries](https://www.mongodb.com/docs/manual/tutorial/create-indexes-to-support-queries/?jmp=university), [Use Indexes to Sort Query Results](https://www.mongodb.com/docs/manual/tutorial/sort-results-with-indexes/?jmp=university), and [Create Queries that Ensure Selectivity](https://www.mongodb.com/docs/manual/tutorial/create-queries-that-ensure-selectivity/?jmp=university) sections of the MongoDB Manual.
