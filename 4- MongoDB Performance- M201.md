@@ -910,3 +910,29 @@ MongoDB is a High Performance Database and to support your requirements it will 
 - Creating index on fields that we want to run regex on increases performance but we still have to run the regex against all the keys in the index
 - to address this issue try to use /^regex/ to only examine a subset of the keys
 - if we use it like this /^.regex/, then it has no effect
+
+
+
+### Aggregation Performance
+- **Realtime Processing**:
+    - Providing data to applications   
+    - Performance is important
+
+- **Batch Processing**:
+    - Providing data for analytics
+    - Performance is less important
+
+- **Index usage**:
+    - if in a certain stage the index can't be used, then it won't be used in the following stages
+    - pass ```{ explain: true }``` as option to view the steps of execution
+    - operators that use index should be at the start of the pipline
+    - match, sort, limit should be in front
+
+- **Memory constraints**:
+    - Results are subject to 16MB doc size limit applies
+        - Use ```$limit``` and ```$projection``` to reduce the results size
+    - 100MB Ram per stage
+        - Use indexes
+        - We can use disk ```db.orders.aggregate([...], {allowDiskUse: true})```
+        - allowDiskUse less performant
+        - graphLookup doesn't support allowDiskUse as it doesn't support spilling to disk
