@@ -936,3 +936,44 @@ MongoDB is a High Performance Database and to support your requirements it will 
         - We can use disk ```db.orders.aggregate([...], {allowDiskUse: true})```
         - allowDiskUse less performant
         - graphLookup doesn't support allowDiskUse as it doesn't support spilling to disk
+
+
+
+
+
+
+
+## Chapter 5: Performance on Clusters
+----
+### Performance Considerations in Distributed Systems
+- Distributed Systems are Replicaset Cluster and Shard Cluster.
+- Consider latency
+- Data is spread across different nodes
+- Read implications
+- Write implications
+
+- **In Replication**:
+	- Offloading eventual consistency data to secondaries
+	- specific work load to target indexes on secondaries like BI
+
+- **In Sharding**:
+	- Shard nodes must be themselves replicasets
+	- Sharding is for horizontal scaling
+	- You should reach vertical scaling limit before sharding
+	- You need to understand how data grows and how your data is accessed to determine a good shard key
+    - Sharding works by defining key based  ranges - our shard key
+    - It's important to get a good shard key
+	- Latency between different cluster elements
+	- Putting mongos on the same server as the application server should reduce latency
+    - In MongoDB there are two types of read we can perform in a shard cluster:
+        - **Scatter Gather**: Where we ping all nodes of our shard cluster for the information corresponding to a given query
+        - **Routed Queries**:  Where we ask one signle shard node or a small amount of shard nodes for the data that your application is requesting
+        - If we don't use shard key will use Scatter Gather
+	    - Routed queries are more performant than scatter gathered queries
+	- Sorting limit and skip is performed locally on each shard then merged on the primary shard
+
+
+- **Note**:
+    > In MongoDB 4.2, we can use any of the shards (or mongos) to do final sort, limit and skip steps. For more details, you can refer to [How mongos Handles Query Modifiers](https://www.mongodb.com/docs/manual/core/sharded-cluster-query-router/#how-mongos-handles-query-modifiers) section in the documentation.
+
+    > You can learn more about distributed system performance considerations by visiting the [Distributed Queries](https://www.mongodb.com/docs/manual/core/distributed-queries/?jmp=university) section of the MongoDB Manual.
