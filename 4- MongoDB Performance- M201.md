@@ -903,3 +903,10 @@ MongoDB is a High Performance Database and to support your requirements it will 
 
 > You can learn more about covered queries by visiting the [Query Optimization](https://www.mongodb.com/docs/manual/core/query-optimization/?jmp=university) section of the MongoDB Manual.
 
+
+
+
+### Regex Performance
+- Creating index on fields that we want to run regex on increases performance but we still have to run the regex against all the keys in the index
+- to address this issue try to use /^regex/ to only examine a subset of the keys
+- if we use it like this /^.regex/, then it has no effect
