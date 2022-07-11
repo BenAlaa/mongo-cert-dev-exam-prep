@@ -810,3 +810,48 @@ MongoDB is a High Performance Database and to support your requirements it will 
         - Indexes on fields that grow monotonically ex: counts, dates, incremental ids should not always be in Memory
         - The B-Tree would be unbalanced and tend to grow to the right hand side
         - Only the right hand side is needed to be in memory (new added data)
+
+
+
+### Basic Benchmarking
+- public test suite
+- private testing environment
+
+- **Types of Perfromance Benchmarking**:
+    1. Low Level Benchmarking:
+        - File I/O Performance
+        - Scheduler Performance
+        - Memory allocation and transfer speed
+        - Database server performance
+        - Thread performance
+        - ...
+        Tools used:
+            - sysbench 
+            - iibench
+
+    2. Database Server Benchmarking:
+        - Data set load
+        - Writes per second
+        - Reads per second
+        - Balanced workloads
+        - Read / Write ratio
+        Tools:
+            - YCSB
+            - TPC
+
+    3. Distributed Systems Benchmarking:
+        - Linearization of reads and writes
+        - Serialization of requests
+        - Fault tolerance if node fails
+        tools:
+            - highbench
+            - jepsen
+
+- **Benchmarking Conditions**:
+	- POCDriver tool to test mongodb workloads
+	- benchmarking anti-patterns:
+		- Database swap replace (turning tables in sql dbs to collections)
+		- Using mongo shell for write and reads requests
+		- Using mongoimport to test writes response
+		- Local laptop to run tests
+		- Using default mongodb parameters
