@@ -1031,3 +1031,27 @@ MongoDB is a High Performance Database and to support your requirements it will 
 
 
 
+### Reading from Secondaries
+- Read preference by default is set to primary node
+- ```db.find().readPref("primary")```
+- There are several other read preferences available:
+    - Primary ```db.find().readPref("primary")``` all reads will routed to primary node
+    - Primary Prefered```db.find().readPref("primaryPrefered")```
+    - Secondary ```db.find().readPref("secondary")``` all reads will be routed to one of the secondaries, write however can only be routed to primary node
+    - Secondary Prefered```db.find().readPref("secondaryPrefered")``` reads will always be routed to a secondary unless there aren't any available in which case will be routed to primary
+    - Nearest ```db.find().readPref("nearest")``` will read from node with the lowest network latency
+
+- Note that when we read data from secondary node there is a possibility to read stale data
+
+- When reading from a Secondary node is a **Good** idea:
+	- Analytics queries
+		- Are generally resource intensive and long running
+	- Local read
+		- in geo distributed clusters for low latency
+
+
+> You can learn more about reading from secondaries by visiting the [Read Preference](https://www.mongodb.com/docs/manual/core/read-preference/?jmp=university) section of the MongoDB Manual.
+
+> **Note** As of MongoDB 3.6 you can read from secondaries on sharded clusters safely.
+
+
