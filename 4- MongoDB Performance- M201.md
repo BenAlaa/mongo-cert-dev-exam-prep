@@ -1055,3 +1055,24 @@ MongoDB is a High Performance Database and to support your requirements it will 
 > **Note** As of MongoDB 3.6 you can read from secondaries on sharded clusters safely.
 
 
+
+
+### Replica Sets with Differing Indexes
+- Use secondary with differing indexes for:
+	- Analytics
+	- Reporting delayed consistency data
+	- Text search
+
+- Secondary Node Considerations: it should be
+    - Prevent such a secondary from becoming primary
+	    - Priority = 0
+	    - Hidden node
+	    - Delayed secondary
+	- They should not be allowed to be primary as they may not have the indexes to handle application queries
+
+- Steps to create index on secondary only:
+	1. shut down the server
+	2. bring up the secondary in stand alone mode
+	3. create the index
+	4. bring up the replicaset again
+	
