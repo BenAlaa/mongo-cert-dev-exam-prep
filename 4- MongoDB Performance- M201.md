@@ -977,3 +977,57 @@ MongoDB is a High Performance Database and to support your requirements it will 
     > In MongoDB 4.2, we can use any of the shards (or mongos) to do final sort, limit and skip steps. For more details, you can refer to [How mongos Handles Query Modifiers](https://www.mongodb.com/docs/manual/core/sharded-cluster-query-router/#how-mongos-handles-query-modifiers) section in the documentation.
 
     > You can learn more about distributed system performance considerations by visiting the [Distributed Queries](https://www.mongodb.com/docs/manual/core/distributed-queries/?jmp=university) section of the MongoDB Manual.
+
+
+
+
+
+### Increasing Write Performance with Sharding
+- Picking a good shard key
+- With a shard key our data are divided up into bite size piece called chunks
+- Each chunk has an inclusive lower bound and exclusive upper bound
+- By default a Chunk max size is 64MB
+- We need to insure that the chunks are distributed evenly across shards
+- **Shard Key Factors**:
+    - **Cardinality**: 
+        - The number of distinct values for a given shard key 
+        - High Cardinality is good
+        - Cardinality determines the max number of chunks that can exist in our cluster
+        - Using Compound shard key insure increase the cardinality
+    - **Frequency**:
+        - The number of occurance of the same values in our cluster
+        - High frequency will limit the equal distribution of chuncks which is bad
+        - When the frequency is high then the throughput of our application would be constrained by the shard contains this repeated values and we defined this as a **Hot Shard**
+        - Typically, when a chunck is close to its max size, Mongo will split it into two chunks 
+        - **Jumbo Chunk** is a chunk with the same lower and upper bound and it will be no longer eligible for spliting and this will reduce the effectiveness of horizontal scaling because we won't be able to move these chuncks between shards
+        - We can mitigate the issue of uneven frequency if we create a good compound shard key 
+    - **Rate of Change**:
+        - How our values change over time.
+        - Avoid monotonically increasing or decreasing values in our shard key.
+        - The examble of this is ObjectID
+        - When using monotonically increasing shard key, all of our writes are going to the same shard, This is the shard that contains the upper bound of max key, which is often refered to as the last shard.
+        - When using monotonically decreasing shard key, all of our writes are going to the same shard, This is the shard that contains the lower bound of min key, which is often refered to as the first shard.
+        - Monotonically changing shard keys should be avoided unless they are used in compound keys and shouldn't be the first field using them this way increases the cardinality
+- High cardinality, low frequency, low rate of change for shard key
+- Compound keys have high cardinality and low frequency
+
+- **Bulk Write**:
+    - ```
+        db.collection.bulkWrite(
+            [<operation1>, <operation2>, ...],
+            {ordered: <boolean>}
+        )
+      ```
+    - **Ordered** bulkwrites are less performant on sharded cluster because the server will execute thesd operations one after another waiting for the last response to succeed, if an operation fails we immediately stop the bulk insertion and report back to the client 
+    - **Unordered** bulkwrites can utilize parallization in sharded cluster, as the server will execute all these operations in parallel
+    - 
+
+
+> You can learn more about increasing write performance with sharding by visiting the [Distributed Write Operations](https://www.mongodb.com/docs/manual/core/distributed-queries/) and [Bulk Write Operations](https://www.mongodb.com/docs/manual/core/bulk-write-operations/?jmp=university) sections of the MongoDB Manual.
+
+
+> **Note**: A monotonically increasing or decreasing values in our shard key is not desired for a heavy write workload, but may be fine for a heavy read workload.
+
+
+
+
