@@ -23,3 +23,12 @@ you will be able to extract a good model, even before rewriting the full applica
 - Keep the amount of the iformation stored per individual document to the data that your application uses and having different models to deal with historical data or other types of data that are not always accessed
 - We can berform data joining process using $lookup
 
+
+### The Document Model in MongoDB
+- Database -> Collection -> Document
+- Document stored in BSON
+- Instead of but your related data in multible table you can put the related data nestead in the same document and put it all down in a single query
+- You can have multiple version of your document schema and they can be coexists in the same collection
+
+> You can read more about [Document Structure](https://www.mongodb.com/docs/manual/core/data-modeling-introduction/#document-structure) and [BSON Data Types](https://www.mongodb.com/docs/upcoming/reference/bson-types/)
+
