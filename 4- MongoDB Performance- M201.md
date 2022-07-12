@@ -1076,3 +1076,25 @@ MongoDB is a High Performance Database and to support your requirements it will 
 	3. create the index
 	4. bring up the replicaset again
 	
+
+
+### Aggregation Pipeline on a Sharded Cluster
+1. If match stage uses shard key
+    - all the pipeline will be routed to that shard
+    - the results will be returned to mongos
+
+2. No match
+    - some stages will be splitted on each shard
+    - then the results will be merged together on a single shard
+    - it normally happens on random shard unless ($out, $facet, $lookup, $graphLookup) are used
+    - in those cased the primary shard will do the merging
+
+
+**Aggregation Optimizations**
+1. if a sort is followed by match, the query optimizer will move the match above to limit the docs sorted
+2. if skip is followed by limit, the query optimizer will move the limit up and change the values of each stage 
+    to result in correct data ----> {skip: 10, limit: 5} will be coalesce { limit: 5, skip: 10 }
+3. some stages can be combined together ---> {limit: 5}, {limt: 10} ---> {limit: 15} or skip or match if possible
+
+
+> You can learn more about aggregation in a sharded cluster by visiting the [Aggregation Pipeline and Sharded Collections](https://www.mongodb.com/docs/manual/core/aggregation-pipeline-sharded-collections/?jmp=university) section of the MongoDB Manual.
