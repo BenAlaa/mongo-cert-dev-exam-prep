@@ -32,3 +32,28 @@ you will be able to extract a good model, even before rewriting the full applica
 
 > You can read more about [Document Structure](https://www.mongodb.com/docs/manual/core/data-modeling-introduction/#document-structure) and [BSON Data Types](https://www.mongodb.com/docs/upcoming/reference/bson-types/)
 
+
+
+### Constraints in Data Modeling
+1. Hardware:
+	- RAM
+	- SSD, HDD
+2. Data:
+	- Size
+	- Security, sovereignty
+3. Application:
+	- Network latency
+4. DB Server:
+	- MongoDB has limitaion on doc size 16MB
+
+- **Working Set**: Is the data that the Application uses in normal operations
+
+- **Tips**:
+	- Keep the frequently used documents in RAM
+	- Keep the indexes in RAM
+	- Prefer SSD to HDD
+	- Infrequently accessed data in hdd
+
+
+
+> To know more about Transactions with MongoDB, please consult the MongoDB [Documentation on Transactions](https://www.mongodb.com/docs/manual/core/transactions/) and some [videos explaining their implementation](https://www.mongodb.com/transactions) .
