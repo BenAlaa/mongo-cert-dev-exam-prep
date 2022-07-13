@@ -1,3 +1,5 @@
+![Certified Developer](./Assets/university-badges-dev-lockup.png)
+![MDB University](./Assets/mdb-university.png)
 # Table of Content
 1. [M001 - MongoDB Basics](#m001)
     1. [Chapter 1: What is MongoDB?](#m001-ch1)
