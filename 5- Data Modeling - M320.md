@@ -74,3 +74,28 @@ you will be able to extract a good model, even before rewriting the full applica
     - decide either keeping as embedded doc or in a new collection
 
 3. Applying design patterns to address performance requirements
+
+
+### Model for Simplicity or Performance
+The main tradoff you will face is Simplicity vs Performance or try to find the balance between them
+
+- **Modeling for Simplicity**:
+	- limitied expectations
+	- low resources requiremens cpu ram disk
+	- fewer collections and embedding documents
+	- less disk access
+![Modeling for Simplicity](./Assets/M320/modeling_for_simplicity.png)
+
+- **Modeling for Performance**:
+	- need more resources
+	- Sharding
+	- fast read, writes
+	- larger teams needed
+	- must adhere to the phases of methodology
+![Modeling for Performance](./Assets/M320/modeling_for_performance.png)
+
+- **Modeling for a Mix of Simplicity and Performance**
+![Modeling for a Mix of Simplicity and Performance](./Assets/M320/modeling_for_a_mix.png)
+
+- **Summary of Modeling Approaches**:
+![Summary of Modeling Approaches](./Assets/M320/flexible_methodology.png)
