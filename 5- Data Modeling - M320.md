@@ -57,3 +57,20 @@ you will be able to extract a good model, even before rewriting the full applica
 
 
 > To know more about Transactions with MongoDB, please consult the MongoDB [Documentation on Transactions](https://www.mongodb.com/docs/manual/core/transactions/) and some [videos explaining their implementation](https://www.mongodb.com/transactions) .
+
+
+
+### The Data Modeling Methodology
+![The Data Modeling Methodology](./Assets/M320/methodology.png)
+**Phases**:
+1. Describing workloads:
+    - Requirement document
+    - Business domain analysis
+    - Production logs and stats if migrating existing db
+
+2. Indentifying relationships between entities:
+    - pieces of info that can be grouped together (entity)
+    - Indentifying the relationships between entities
+    - decide either keeping as embedded doc or in a new collection
+
+3. Applying design patterns to address performance requirements
