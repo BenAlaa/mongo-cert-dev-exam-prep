@@ -1,7 +1,0 @@
-- Means one to something huge like 100 millions
-
-- can't use Embedding as it won't be performant
-
-- can't reference the many in the one side as it won't be performant
-
-- Reference the one in the many side

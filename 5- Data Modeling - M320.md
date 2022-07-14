@@ -194,3 +194,11 @@ The main tradoff you will face is Simplicity vs Performance or try to find the b
 	- Possible performance improvements with:
 		- smaller disk access
 		- smaller amount of RAM needed
+
+
+### One-to-Zillions Relationship
+- Means one to something huge like 100 millions
+- It is a special case of one-to-many relationship
+- can't use Embedding as it won't be performant
+- can't reference the many in the one side as it won't be performant
+- Reference the one in the many side
