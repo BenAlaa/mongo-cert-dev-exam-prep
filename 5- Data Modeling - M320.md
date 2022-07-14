@@ -113,3 +113,20 @@ The main tradoff you will face is Simplicity vs Performance or try to find the b
 	- Customer and invoices is One-to-Many relationship
 	- Invoices and Products is Many-to-Many relationship
 	
+
+
+### Relationship Types and Cardinality
+- **Cardinalities**:
+	- one-to-one (1-1)  grouped in the same doc
+	- one-to-many (1-N)  
+	- many-to-many (N-N)
+
+- one-to-many or many-to-many:
+	- it depends on how much likely the many will be
+	- in father - children situation, it's likely to be max of 5 or 10
+	- in follower - following situation, it may be 10 or 10,000
+- one-to-zilions is useful in the Big Data world
+- Numerical Notation:  [min, likely, max]
+	- minimum
+	- most likely
+	- maximum
