@@ -178,3 +178,19 @@ The main tradoff you will face is Simplicity vs Performance or try to find the b
 	2. Referencing
 		- Array of references in each many side
 		- References readily available upon first query on the main collection
+
+
+
+### One-to-One Relationship
+- Like user and his email, name, phone
+1. Embedded in the same document
+	- fields in the doc at the same level
+	- grouped in sub document
+
+2. Referencing
+	- For example store and store_details
+	- use identifier in either documents
+	- add complexity
+	- Possible performance improvements with:
+		- smaller disk access
+		- smaller amount of RAM needed
