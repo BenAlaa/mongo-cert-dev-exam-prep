@@ -99,3 +99,17 @@ The main tradoff you will face is Simplicity vs Performance or try to find the b
 
 - **Summary of Modeling Approaches**:
 ![Summary of Modeling Approaches](./Assets/M320/flexible_methodology.png)
+
+
+
+## Chapter 2: Relationships
+---
+### Introduction to Relationships
+- Even MongoDB is classified as non-relationa database but the pieces of data inside will have relations.
+- Mainly these relations is done by embeding or referencing.
+- The relationships represent all the entities are related to each other.
+- For example:
+	- customer and customer_id is One-to-One relationship
+	- Customer and invoices is One-to-Many relationship
+	- Invoices and Products is Many-to-Many relationship
+	
