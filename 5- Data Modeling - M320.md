@@ -160,3 +160,21 @@ The main tradoff you will face is Simplicity vs Performance or try to find the b
 		- refer to one in many side documents
 			- preferred in references
 			- no need to manage references in the one side
+
+
+### Many-to-Many Relationship
+- Many documents in the first side associated with many document in the second side and vice versa like (stores and products)
+- In tradetional relational databases you will had to create new table to manage the relation
+- **MongoDB Implementations**:
+	1. Embedding
+		- Array of sub docs in the many side
+		- Array of sub docs in the other many side
+		- Usually the most queried is the main consideration
+			- Embed the documents from the least queried side in the most queried
+			- Results in duplication
+			- Keep the source of the embedded documents in another collection
+			- Indexing is done on the Array
+
+	2. Referencing
+		- Array of references in each many side
+		- References readily available upon first query on the main collection
