@@ -130,3 +130,33 @@ The main tradoff you will face is Simplicity vs Performance or try to find the b
 	- minimum
 	- most likely
 	- maximum
+
+
+
+### One-to-Many Relationship
+- For exmaple: Person and credit cards
+
+- **Solutions**:
+	1. Embedded doc:
+		- all in one collection
+		- usually, embedding in the entity the most queried
+		- embed the many in the one side document
+			- most common
+			- will create a multi-key index
+
+		- embed the one in the many side documents (like shipping_address in orders)
+			- less often used
+			- useful if many is queried more often than one
+			- embedded object is duplicated
+
+	2. Reference:
+		- a collection for each
+		- usually, referencing in the many side
+		- refer to many in the one side document like (stores in zips)
+			- Array of references
+			- Allows large number of documents
+			- List of references available when retrieving the main object
+			- Cascade deletes are not handeled by mongo db and must be done by application logic
+		- refer to one in many side documents
+			- preferred in references
+			- no need to manage references in the one side
