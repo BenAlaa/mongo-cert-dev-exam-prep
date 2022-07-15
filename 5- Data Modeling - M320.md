@@ -213,3 +213,48 @@ The main tradoff you will face is Simplicity vs Performance or try to find the b
 - Patterns are not the full solution of the problem.
 - Patterns are smaller sections of those solutions, they are reusable units of knowledge.
 - Patterns are like software design patterns but for Data Modeling and Schema Design.
+
+
+### Handling Duplication, Staleness and Integrity
+Applying Pattern may lead to...
+
+- Duplication of data across documents
+- Data staleness in some pieces of data
+- Data integrity issues: 
+	- may have to write application side logic to ensure referential integrity	
+
+> **Note** If these three concerns are more important than the potential simpicity of performance gains provided by the pattern, you should not use the pattern.
+
+
+1. **Duplications**:
+	- **Why?**
+		- Results of embedding info in a given document for faster access for example: embedding the customer address in the shipment info document so it can't 
+		be changed after the order is shipped if user changed his address.
+	- **Concern??**
+		- Represents challenges to insure correctness and consistency.
+	- **Situations**:
+		- Duplication is the solution: like embedding the shipping_address in the document so if the user change the address that didn't affect the order.
+		- Duplication has minimal effect: like embedding actors in the movie document as they won't change once the movie released
+		- Duplication should be handled: duplication of a piece of info that may change with time for example the revenuse for the given movie
+
+2. **Staleness**:
+	- **Why?**
+		- New events come along at such a rate that updating some data constantly that updating can cause performance issues.
+	- **Concern??**
+		- Challenges in insuring data quality and reliability
+	- **Situations**:
+		- Batch update
+		- Change streams
+	- > [To know more about change streams, please consult the MongoDB documentation on change streams.](https://www.mongodb.com/docs/manual/changeStreams/)
+
+
+3. **Referential integrity**:
+	- **Why?**
+		- Linking info between docs 
+		- Not supporting cascading deletes or foreign keys
+	- **Concern??**
+		- challenges in data quality
+	- **Situations**:
+		- Using Change Streams
+		- Embedding data in single document
+		- Using Multi-Documents transactions
