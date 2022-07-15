@@ -361,3 +361,31 @@ Applying Pattern may lead to...
 			a. What are the extended references to  changed
 			b. When should the extended references be updated
 		3. Duplication may be better than a unique reference
+
+
+
+### Subset Pattern
+- **Problem**:
+	- Working set is too big, bigger than ram
+	- solution:
+		- add ram
+		- scale with sharding
+		- reduce the size of the working set (the pattern)
+
+- **Solution**:
+	- divide the document into two collections
+		- one that is frequently accessed data 
+		- one with the remaining data
+
+- **Use cases**:
+	- list of reviews of a product
+	- list of comments on an article
+	- list of actors in a movie
+
+- **Pros**:	
+	- smaller working set
+	- shorter disk accesse
+
+- **Cons**:
+	- duplication
+	- more round trips to server 
