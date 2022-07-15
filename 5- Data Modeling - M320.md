@@ -334,3 +334,30 @@ Applying Pattern may lead to...
     - Ability to qualify the relationship of the original field and value
 
 > **Note** With the release of the Wildcard Index functionality in MongoDB 4.2, some use cases of the Attribute Pattern can be replaced by this new index type.
+
+
+
+
+### Extended Reference Pattern
+- **Problem**: avoiding joining data at query time
+
+- **Solution**: Embed fields on the lookup side in the docs in the from collection
+
+- **Use cases**:
+	- Catalog
+	- Mobile apps
+	- Real-Time Analytics
+
+- **Pros**:	
+	- faster reads
+	- reduce the number of joins and lookups
+
+- **Cons**:
+	- Duplication:
+		1. Minimize it:
+			a. Select fields that don't change often
+			b. Bring only the fields you need to avoid joins
+		2. After a source is updated:
+			a. What are the extended references to  changed
+			b. When should the extended references be updated
+		3. Duplication may be better than a unique reference
