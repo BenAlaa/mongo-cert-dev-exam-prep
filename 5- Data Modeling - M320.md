@@ -202,3 +202,14 @@ The main tradoff you will face is Simplicity vs Performance or try to find the b
 - can't use Embedding as it won't be performant
 - can't reference the many in the one side as it won't be performant
 - Reference the one in the many side
+
+
+
+
+
+## Chapter 3: Patterns (Part 1)
+---
+### Introduction to Patterns
+- Patterns are not the full solution of the problem.
+- Patterns are smaller sections of those solutions, they are reusable units of knowledge.
+- Patterns are like software design patterns but for Data Modeling and Schema Design.
