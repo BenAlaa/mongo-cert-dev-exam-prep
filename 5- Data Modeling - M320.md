@@ -680,3 +680,51 @@ Applying Pattern may lead to...
 **Pros**:
 - Easier to implement
 - Allow query across a single collection
+
+
+### Other Patterns
+
+**Approximation Pattern**:
+![Approximation Pattern](./Assets/M320/apprximation-pattern.png)
+- Used to reduce resources needed to perform some write operations.
+- This Pattern using approximation function to produce the result
+- **Problem**:
+    - Data is expensive to calculate
+    - it does not matter if the number is not precise
+- **Solution**
+    - Fewer writes with higher payload
+- **Use Cases**:
+    - Web page counters
+    - Any counters with impercision tolerance
+    - Metric statistics
+- **Pros**:
+    - Less writes
+    - Less contention on docs
+    - Statistically valid numbers
+- **Cons**:
+    - Not exact numbers
+    - Must be implemented in the application
+
+**Outlier pattern**:
+![Outliers Pattern](./Assets/M320/outlier-pattern.png)
+- **Problem**:
+    - Few documents would drive the solution
+    - Impact would be negative on the majority of queries
+- **Solution**
+    - implementation that works with the majority
+    - Add field that indetify the Outliers
+    - Outliers are handeled differently on the application side
+    ![Outliers Pattern Example](./Assets/M320/outlier-pattern-example.png)
+- **Use Cases**:
+    - Social Networks
+    - Popularity
+- **Pros**:
+    - Optimized for most use cases
+- **Cons**:
+    - Differnces handled application side
+    - Difficult for aggregation or ad hoc queries
+
+
+
+### Summary of Patterns
+![Patterns Summary](./Assets/M320/patterns-use-cases.png)
