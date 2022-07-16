@@ -419,3 +419,35 @@ Applying Pattern may lead to...
 - **Cons**:
 	- Avoid applying or overusing it unless needed
 	- May be difficult to identify the need
+
+
+
+### Bucket Pattern
+- **Problem**:
+	- Avoiding too many docs
+	- Avoiding too big docs
+	- A 1-to-Many relationship that can't be embedded
+
+- **Solution**:
+	- Define the optimal amount of data to group together
+	- Create arrays to store the information in the main object
+	- It is basically an embedded 1-to-Many relationship, where you get N documents each having an average of many/N sub documents
+
+- **Use cases**:
+	- IOT
+	- Data Warehousing
+	- Lots of info associated with one object
+
+- **Pros**:	
+	- Good balance in the number of acess and size of data
+	- Makes data more manageable
+	- Easy to prune data
+
+- **Cons**:
+	- Can lead to poor query results if not designed correctly
+	- Less friendly to bi tools
+  - Random insertions or deletios in buckets
+  - Difficult to sort across buckets
+  - Ad hoc queries may be more complex, again across buckets
+  - Works best when the "complexity" is hidden through the application code
+	
