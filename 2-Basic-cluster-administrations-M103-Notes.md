@@ -1,9 +1,9 @@
-# Chapter 1: The Mongod
+## Chapter 1: The Mongod
 ---
 
-## The Mongod Introduction
-- daemon is a program or process that's meant to be run but not interacted with directly.
-- mongod is the main daemon for mongodb, is the core server of the database to handle connections, requests and process data.
+### The Mongod Introduction
+- **daemon** is a program or process that's meant to be run but not interacted with directly.
+- **mongod** is the main daemon for mongodb, is the core server of the database to handle connections, requests and process data.
 - has the all main configurations options to make your data secure and consistent.
 - each server has an instance of mongod
 - if we have a cluster each server will run one mongod instance.
@@ -31,7 +31,7 @@
     - Drivers (Node, swift, java, ...)
 
 
-## Configuration File
+### Configuration File
 #### command line options and their respective config commands
 
 - ``--dbpath``   -->  ``storage.dbPath``
@@ -96,6 +96,7 @@ systemLog:
    path: "/var/log/mongodb/mongod.log"
    logAppend: true
 storage:
+   dbPath: "/data/db"
    journal:
       enabled: true
 processManagement:
@@ -293,18 +294,18 @@ mongo admin --host localhost:27000 --eval '
 ```
 
 
-## File Structure (WiredTiger)
-You typicaly don't need to interact with this data folder to be modified may be to be read only.
-These files isn't designed for user user modefications and if you modefied them you may face crashes or data lose.
+### File Structure (WiredTiger)
+You typically don't need to interact with this data folder to be modified may be to be read only.
+These files isn't designed for user modefications and if you modefied them you may face crashes or data lose.
 
 - To List --dbpath directory:
     > ls -l /data/db
     ```
-    WiredTiget       
-    WiredTiget.wt  
-    WiredTiget.lock 
-    WiredTiget.turtle  
-    WiredTigetLAS.wt   
+    WiredTiger      
+    WiredTige.wt  
+    WiredTiger.lock 
+    WiredTiger.turtle  
+    WiredTigerLAS.wt   
     _mdb_catalog.wt
     mongod.lock
     sizeStorer.lock
@@ -352,10 +353,10 @@ this group of files is related to how wiredTiger storage engine keep track of in
 **mongodb-27017.sock** file in /tmp folder: socket file use to create socket connection to the specified port
 
 
-## Basic Commands
+### Basic Commands
 - Shell helpers ---> wraps db commands
    ```
-   db.<method>() --> data base commands
+   db.<method>() --> database commands
    rs.<method>() --> replica set commands
    sh.<method>() --> sharding commands
    ```
@@ -413,12 +414,12 @@ this group of files is related to how wiredTiger storage engine keep track of in
    ```
 
 
-## Logging Basics
+### Logging Basics
 MongoDB provide to logging facilities to tracking activites on your database:
 1. **Process Log**: collectes the activites into one of the following components: 
-   - ACCESS - messages related to access controle, such as authentication
+   - ACCESS - messages related to access control, such as authentication
    - COMMAND - messages related to database commands
-   - CONTROL - messages related to controle activities such as initialization
+   - CONTROL - messages related to control activities such as initialization
    - FTDC - messages related to the diagnostic data collection mechanism
    - GEO - messages related to parsing geo-spatial shapes
    - INDEX - messages related to indexing operations
@@ -436,7 +437,7 @@ to retrive a log commponents from db I can use this command:
    ```db.getLogComponents()```
 #### Log verbosity Levels
   - verbosity: parent verbosity on the object level  ranges (0 -> 5) the higher the more verbose
-  - component.verbosity: for each individual component if set to -1 the will inherit the parent verbosity
+  - component.verbosity: for each individual component if set to -1 it will inherit the parent verbosity
   - -1 : inherit from parent
   - 0: Default verposity to include informational message
   - 1-5: increase  the verbosity level to include debug messages
@@ -472,11 +473,10 @@ command: <the command itself>
 
 
 
-## Profiling the Database
+### Profiling the Database
 
-Profiling stores more detailed info than logging
-not all actions are captured profiler
-
+- Profiling stores more detailed info than logging
+- not all actions are captured on profiler
 - Profiler is enabled on database level for each db separatly
 - if enabled, stores all operations on db in a new collection called ```system.profile```
 
@@ -490,7 +490,7 @@ not all actions are captured profiler
    - 1 -> Profiler collects data for the operations that take longer than the value of ```ms```
    - 2 -> Profiler collect all data for all operations
 
-**slow ops**: by default any that takes longer than 100ms  and can be adjusted by setting the slowms variable
+**slow ops**: by default any operation that takes longer than 100ms  and can be adjusted by setting the slowms variable
 
 - To get the Profiling Level:
    ```db.getProfilingLevel()```
@@ -498,7 +498,7 @@ not all actions are captured profiler
    ```db.setProfilingLevel(<level>, {slowms: <Number>})```
 
 
-## Basic Security
+### Basic Security
 
 #### Authentication Mechanisms:
 1. SCRAM(**S**alted **C**halleng **R**esponse **A**uthentication **M**echanism): is the default and the most basic form of client authentication (**Community Edition**)
@@ -546,7 +546,7 @@ mongo --username root --password root123 --authenticationDatabase admin
 ```
 
 
-## Roles
+### Roles
 - Database users are granted roles
 - **Custom Roles** : tailored roles to attend  specific needs of sets of users
 - **Built-In Roles**: Pre-packed MongoDB Roles
@@ -695,7 +695,7 @@ mongo --username root --password root123 --authenticationDatabase admin
 
 
 
-## Server Tools Overview
+### Server Tools Overview
 
 List mongodb binaries: this will list all tools installed with mongodb
 ```
@@ -746,15 +746,15 @@ find /usr/bin/ -name "mongo*"
 
 
 
-# Chapter 2: Replication
+## Chapter 2: Replication
 ---
 
-## What is Replication?
+### What is Replication?
 Replication is the concept of manitaining multiple copies of your data.
 This because you never assume that all your servers will be all over available.
 To make sure at anytime any server is down you can still access your data **Availability**.
 
-## MongoDB Replica Set
+### MongoDB Replica Set
 - Replicaset is a group of mongod nodes that work on the same data
 - consists of one primary node that handles the data and secondary nodes that sync up with the primary
 - if the primary fails, a secondary node takes it's place in a process called **failover** where nodes vote for which node will become the primary in a process called **election**
@@ -775,8 +775,8 @@ To make sure at anytime any server is down you can still access your data **Avai
 
 
 
-## Setting Up a Replica Set
-We will independtly launching 3 mongod process and try to connect theme to replicate data for us.
+### Setting Up a Replica Set
+We will independtly launching 3 mongod process and try to connect them to replicate data for us.
 
 1. adding keyFile to security section in config file so all members can authentiacte each other using this keyFile
 2. This is adition to client auth
@@ -880,7 +880,7 @@ We will independtly launching 3 mongod process and try to connect theme to repli
 21. Checking replica set overview after election: ```rs.isMaster()```
 
 
-## Replication Configuration Document
+### Replication Configuration Document
 - BSON doc that holds the configuration of the replicaset and is shared across all nodes
 - JSON Object that define the configuration options of our replica set.
 - Can be configured manually from the shell
@@ -916,7 +916,7 @@ We will independtly launching 3 mongod process and try to connect theme to repli
 ```
 
 
-## Replication Commands
+### Replication Commands
 **rs.status()**:
   - reports health of the nodes
   - uses data from heartbeats so it can be seconds out of date
@@ -936,7 +936,7 @@ We will independtly launching 3 mongod process and try to connect theme to repli
 
 
 
-## Local DB
+### Local DB
 
 - Display all databases (by default, only admin and local):
    ```
@@ -952,8 +952,8 @@ We will independtly launching 3 mongod process and try to connect theme to repli
 - has several collections on replicset:
    >me
    oplog.rs
-   replser.electoin
-   replser.minvali
+   replset.electoin
+   replset.minvali
    startup_log
    system.replset
    system.rollback.id
@@ -978,7 +978,7 @@ We will independtly launching 3 mongod process and try to connect theme to repli
 
 
 
-## Reconfiguring a Running Replica Set
+### Reconfiguring a Running Replica Set
 
 Let's assume we have a replica set of 3 nodes and we need to add 2 more 1 as Arbiter and 1 as secodary node.
 - **node4.conf**:
@@ -1052,14 +1052,14 @@ Let's assume we have a replica set of 3 nodes and we need to add 2 more 1 as Arb
 
 
 
-## Reads and Writes on a Replica Set
+### Reads and Writes on a Replica Set
 - By default read and write operations aren't allowed on secondary nodes
 - to enable reading on a secondary node: ```rs.slaveOk()```
 - writing is forbidden to replica sets
 - if no nodes are secondary the primary will be secondary and we will not be able to write to the replica set
 
 
-## Failover and Elections
+### Failover and Elections
 suppose the following scenario: 
   - replicaset with 3 nodes 1p and 2s
   - to do a rolling upgrade we do:
@@ -1090,7 +1090,7 @@ suppose the following scenario:
   - if a primary can't reach any voting secondary, it wil automatically step down and be a secondary and if no primary in the replset then it won't be reachable
 
 
-## Write Concerns
+### Write Concerns
 - write concerns are acknowledgement mechanism to increase durability
 - for a write to be durable, majority of the nodes must acknowledge the success of the write
 - **Levels**:
@@ -1118,7 +1118,7 @@ db.collection.insert(
 
 
 
-## Read Concerns
+### Read Concerns
 - returns the data if it has been saved to a number of nodes
 **Levels**: 
   - ```local``` --> (default) most recent data to the cluster on primary only and doesn't guarantee that it is durable
@@ -1130,7 +1130,7 @@ db.collection.insert(
 - local & available  ->> fast and latest but not safe
 - majority  ->> fast and safe not latest
 - linearizable  ->> safe and latest - not fast - single doc reads only
-- for secondary reads ->> local & available is fast only but not allwasy latest
+- for secondary reads ->> local & available is fast only but not always latest
 
 
 **READ preference**
@@ -1149,9 +1149,9 @@ modes:
 
 
 
-# Chapter 3: Sharding
+## Chapter 3: Sharding
 ---
-## What is Sharding?
+### What is Sharding?
 - higher cost of vertical scaling
 - scaling horizontaly by divid the data into multiple instances
 - impact on operational tasks like (backup)  ---> backing up several 2 TB hard disks in parallel is faster than 20 TB single hard disk
@@ -1159,7 +1159,7 @@ modes:
 - geographically distributed datasets
 
 
-## Sharding Architecture
+### Sharding Architecture
 - we setting up a router process that accept queries from clients this router process called **Mongos**
 - We can have any number of Mongos processes 
 - Mongos using Metadata stored in config servers that has info about where each piece is stored.
@@ -1173,8 +1173,8 @@ modes:
 
 
 
-## Setting Up a Sharded Cluster
-The minumum requirementsd to have a sharded cluster is to have (mongos process, one shard, CSRS)
+### Setting Up a Sharded Cluster
+The minumum requirements to have a sharded cluster is to have (mongos process, one shard, CSRS)
 
 
 
