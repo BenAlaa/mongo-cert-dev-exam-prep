@@ -502,3 +502,126 @@ Applying Pattern may lead to...
 
 **Cons**:
 - May need 2 indexes for the same field during migration period
+
+
+
+
+### Tree Patterns
+**Problem**:	
+- How to model heirarical structures information
+
+**Use Cases**:
+- Company organization charts ![Company Structure](./Assets/M320/company-structure.png)
+- Subject areas structures in a given domain like books ![books structure](./Assets/M320/books-structure.png)
+- Categories of products for a given e-commerce site or shop. ![category structure](./Assets/M320/shop-structure.png)
+
+**Hierarchical nodes relationship's common operations**:
+- Who are the ancestors of node X?
+- Who reports to Y?
+- Find all nodes that are under Z?
+- Change all categories under N to under P
+
+**Patterns to Model Tree Structures**:
+1. **Parent References**:
+    - The document holds a reference to the parent node.
+    - Parents references are prefer to perform operations like:
+        - Who reports to Y?
+        - Change all categories under N to under P
+    - We can collect all ancestors by running an aggregation pipeline with a $graphlookup stage to retrieve all subsequent parents of the immediate parents traversing the full tree
+        ```
+        // Who are the ancestors of node X?
+        // all ancestors
+        db.categories.aggregate([
+            {$graphLookup: {
+                from: 'categories',
+                startWith: '$name',
+                connectFromField: 'parent',
+                connectToField: 'name',
+                as: 'ancestors'
+            }}
+        ])
+        ```
+    - To find all reports of a given parent, we can run a find command matching for the parent and then retrieving all children nodes.
+        ```
+        // Who reports to Y?
+        // immediate ancestor
+        db.categories.find({parent: 'Y'})
+        ```
+    - In order to change all nodes that report to or are children of one parent in other words change all categories under N to be under P we can use an update operation
+        ```
+        // Change all categories under N to under P
+        // all ancestors
+        db.categories.updateMany(
+            {parent: N},
+            {$set: {parent: P}}
+        )
+        ```
+2. **Child References**
+    - The parent contains a single array off all the immediate childs
+        ```
+        {
+            name: "office",
+            children: ["Books", "Electronics", "Stickers"]
+            ...
+        }
+        ```
+    - To perform the operation finding all nodes that are under Z we use a single request to retrieves all of that information
+    - However, other questions like, who are the ancestors of X become a bit more complicated.
+    - Finding all nodes that reports to Y or even changing all nodes under N to under P are not ideal for this pattern
+3. **Array of Ancestors**:
+    - This model uses an ordered array to store a list of all of a node's ancestores on that node
+        ```
+        {
+            name: "Books",
+            ancestores: ["Swag", "Office"]
+        }
+        ```
+    - This model is very efficient for finding :
+        - Who are the ancestors of node X?
+        - Who reports to Y?
+        - Find all nodes that are under Z?
+
+4. **Materialized Paths**:
+    - In this model we use a string value to describe the node's ancestors with value separtor
+        ```
+        {
+            name: "Books",
+            ancestores: ".Swag.Office"
+        }
+        ```
+    - We can use a single regular expression over a single index field value for all queries prepended on the root tree node
+        ```
+        // immedate ancestor of Y
+        db.categories.find({ancestors: /\.Y$/})
+
+        // if descends from X and Z
+        db.categories.find({ancestors: /^\.X.*Y/i})
+        ```
+    - This mode is effeciant to answer this question:
+        - Who are the ancestors of node X?
+
+
+- **Note** We can use any compination of different patterns  in our mode for example:
+    - here is the categories collection where we using both ***Array of Ancestors*** and ***Parent Reference*** models
+        ```
+        {
+            _id: 8,
+            "name": "Umbrellas",
+            "parent": "Fashion",
+            "ancestors": ["Swag","Fashion"]
+        }
+        ```
+
+
+**Use Cases**:
+- Org charts
+- Product Categories
+
+**Pros**:
+- Child Reference: easy to navigate to a child node or tree descending access patterns
+- Parent Reference: Immediate parent node discovery and tree updates
+- Array of Ancestors: Navigate upwards on the ancestors path
+- Materialized Path: Makes use of regular expression to find nodes in the tree
+
+
+> **Note** You can find more information by going to documentation page of [Model Tree Structures](https://www.mongodb.com/docs/manual/applications/data-models-tree-structures/)
