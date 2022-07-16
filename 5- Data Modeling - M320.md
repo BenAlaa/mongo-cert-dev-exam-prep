@@ -389,3 +389,33 @@ Applying Pattern may lead to...
 - **Cons**:
 	- duplication
 	- more round trips to server 
+
+
+
+
+### Computed Pattern
+- **Problem**:
+	- Costly computation or manipulation of data like:
+      - Mathematical Operations
+      - Fan Out Operations
+      - Roll-up Operations
+	- Executed frequently on the same data produces the same result
+
+
+- **Solution**:
+	- Perform operations and store the result in the appropriate doc and collection
+	- if needed to redo the operations, keep the source
+
+- **Use cases**:
+	- IOT
+	- Event Sourcing
+	- Time Series Data
+	- Frequent Aggregatoin Framework queries
+
+- **Pros**:	
+	- Overuse of resources (CPU)
+  - Reduce latency for read operations
+
+- **Cons**:
+	- Avoid applying or overusing it unless needed
+	- May be difficult to identify the need
