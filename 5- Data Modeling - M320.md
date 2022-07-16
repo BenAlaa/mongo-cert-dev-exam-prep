@@ -339,115 +339,166 @@ Applying Pattern may lead to...
 
 
 ### Extended Reference Pattern
-- **Problem**: avoiding joining data at query time
+**Problem**: avoiding joining data at query time
 
-- **Solution**: Embed fields on the lookup side in the docs in the from collection
+**Solution**: Embed fields on the lookup side in the docs in the from collection
 
-- **Use cases**:
-	- Catalog
-	- Mobile apps
-	- Real-Time Analytics
+**Use cases**:
+- Catalog
+- Mobile apps
+- Real-Time Analytics
 
-- **Pros**:	
-	- faster reads
-	- reduce the number of joins and lookups
+**Pros**:	
+- faster reads
+- reduce the number of joins and lookups
 
-- **Cons**:
-	- Duplication:
-		1. Minimize it:
-			a. Select fields that don't change often
-			b. Bring only the fields you need to avoid joins
-		2. After a source is updated:
-			a. What are the extended references to  changed
-			b. When should the extended references be updated
-		3. Duplication may be better than a unique reference
+**Cons**:
+- Duplication:
+    1. Minimize it:
+        a. Select fields that don't change often
+        b. Bring only the fields you need to avoid joins
+    2. After a source is updated:
+        a. What are the extended references to  changed
+        b. When should the extended references be updated
+    3. Duplication may be better than a unique reference
 
 
 
 ### Subset Pattern
-- **Problem**:
-	- Working set is too big, bigger than ram
-	- solution:
-		- add ram
-		- scale with sharding
-		- reduce the size of the working set (the pattern)
+**Problem**:
+- Working set is too big, bigger than ram
+- solution:
+    - add ram
+    - scale with sharding
+    - reduce the size of the working set (the pattern)
 
-- **Solution**:
-	- divide the document into two collections
-		- one that is frequently accessed data 
-		- one with the remaining data
+**Solution**:
+- divide the document into two collections
+    - one that is frequently accessed data 
+    - one with the remaining data
 
-- **Use cases**:
-	- list of reviews of a product
-	- list of comments on an article
-	- list of actors in a movie
+**Use cases**:
+- list of reviews of a product
+- list of comments on an article
+- list of actors in a movie
 
-- **Pros**:	
-	- smaller working set
-	- shorter disk accesse
+**Pros**:	
+- smaller working set
+- shorter disk accesse
 
-- **Cons**:
-	- duplication
-	- more round trips to server 
+**Cons**:
+- duplication
+- more round trips to server 
 
 
 
 
 ### Computed Pattern
-- **Problem**:
-	- Costly computation or manipulation of data like:
-      - Mathematical Operations
-      - Fan Out Operations
-      - Roll-up Operations
-	- Executed frequently on the same data produces the same result
+**Problem**:
+- Costly computation or manipulation of data like:
+    - Mathematical Operations
+    - Fan Out Operations
+    - Roll-up Operations
+- Executed frequently on the same data produces the same result
 
 
-- **Solution**:
-	- Perform operations and store the result in the appropriate doc and collection
-	- if needed to redo the operations, keep the source
+**Solution**:
+- Perform operations and store the result in the appropriate doc and collection
+- if needed to redo the operations, keep the source
 
-- **Use cases**:
-	- IOT
-	- Event Sourcing
-	- Time Series Data
-	- Frequent Aggregatoin Framework queries
+**Use cases**:
+- IOT
+- Event Sourcing
+- Time Series Data
+- Frequent Aggregatoin Framework queries
 
-- **Pros**:	
-	- Overuse of resources (CPU)
-  - Reduce latency for read operations
+**Pros**:	
+- Overuse of resources (CPU)
+- Reduce latency for read operations
 
-- **Cons**:
-	- Avoid applying or overusing it unless needed
-	- May be difficult to identify the need
+**Cons**:
+- Avoid applying or overusing it unless needed
+- May be difficult to identify the need
 
 
 
 ### Bucket Pattern
-- **Problem**:
-	- Avoiding too many docs
-	- Avoiding too big docs
-	- A 1-to-Many relationship that can't be embedded
+**Problem**:
+- Avoiding too many docs
+- Avoiding too big docs
+- A 1-to-Many relationship that can't be embedded
 
-- **Solution**:
-	- Define the optimal amount of data to group together
-	- Create arrays to store the information in the main object
-	- It is basically an embedded 1-to-Many relationship, where you get N documents each having an average of many/N sub documents
+**Solution**:
+- Define the optimal amount of data to group together
+- Create arrays to store the information in the main object
+- It is basically an embedded 1-to-Many relationship, where you get N documents each having an average of many/N sub documents
 
-- **Use cases**:
-	- IOT
-	- Data Warehousing
-	- Lots of info associated with one object
+**Use cases**:
+- IOT
+- Data Warehousing
+- Lots of info associated with one object
 
-- **Pros**:	
-	- Good balance in the number of acess and size of data
-	- Makes data more manageable
-	- Easy to prune data
+**Pros**:	
+- Good balance in the number of acess and size of data
+- Makes data more manageable
+- Easy to prune data
 
-- **Cons**:
-	- Can lead to poor query results if not designed correctly
-	- Less friendly to bi tools
-  - Random insertions or deletios in buckets
-  - Difficult to sort across buckets
-  - Ad hoc queries may be more complex, again across buckets
-  - Works best when the "complexity" is hidden through the application code
-	
+**Cons**:
+- Can lead to poor query results if not designed correctly
+- Less friendly to bi tools
+- Random insertions or deletios in buckets
+- Difficult to sort across buckets
+- Ad hoc queries may be more complex, again across buckets
+- Works best when the "complexity" is hidden through the application code
+
+
+
+### Schema Versioning Pattern
+**Updating a Relational Database Schema**:
+- Need time to update the Data
+- Usually done by stopping the Application
+- Hard to revert if something goes wrong
+
+**Application Lifecycle**:
+- Modify Application
+    - Can read/process all versions of documents
+        - Have different handler per version
+        - Reshape the document before processing it
+- Update all Application servers
+    - Install updated application
+    - Remove old processes
+- Once migration completed
+    - remove the old code to process old versions
+
+**Document Lifecycle**:
+- New Documents:
+    - Application write them in latest version
+- Existing Documents
+    - A Use updates to documents
+        - to transform to latest version
+        - keep forever documents that never need an update
+    - B ... or transform all documents in batch
+        - no worry even if process takes days
+![Summary of Modeling Approaches](./Assets/M320/timeline-of-migration.png)
+
+**Problem**:
+- Avoiding downtime while schema upgrades
+- Upgrading all documents can take hours, days or even weeks when dealing with big data
+- Don't want to update all documents
+
+**Solution**:
+- Each document get a "schema_version" field
+- Modify the application to handle all versions	
+- Choose your strategy to migrate the documents
+
+**Use cases**:
+- Every appication that use a database deployed in production env and heavily used
+- System with a lot of legacy data
+
+**Pros**:	
+- No downtime needed
+- Feel in control of the migration
+- Less future technical debt
+
+**Cons**:
+- May need 2 indexes for the same field during migration period
