@@ -625,3 +625,58 @@ Applying Pattern may lead to...
 
 
 > **Note** You can find more information by going to documentation page of [Model Tree Structures](https://www.mongodb.com/docs/manual/applications/data-models-tree-structures/)
+
+
+
+
+### Polymorphic Pattern
+- We should put things together if we need to query them together
+- Car, Truck and Boat are polymorphic object as they have some similarity with some differences.
+- The usual implementation that represents polymorphic objects as a field that describes the name of this shape
+    ```
+    // Car
+    {
+        "vehicle_type": "car",
+        ...
+        "owner": "x",
+        "taxes": "100",
+        "wheels": 4
+    }
+    // Truck
+    {
+        "vehicle_type": "truck",
+        ...
+        "owner": "y",
+        "taxes": "800",
+        "wheels": 10,
+        "axles": 3
+    }
+    // Boat
+    {
+        "vehicle_type": "boat",
+        ...
+        "owner": "z",
+        "taxes": "2000",
+    }
+    ```
+- We can apply polymorphic pattern on Subdocuments
+- We usualy using Polymorphic pattern to allow single view solution
+- Polymorphism in the Schema Versioning Pattern
+
+
+**Problem**:
+- Objects more similar than different
+- Want to keep objects in the same collection
+
+**Solution**:
+- Field tracks the type of document or sub-document
+- Applicaion has different code paths per type, or has subclasses
+
+**Use Cases**:
+- Single View
+- Product Catalog
+- Content Management
+
+**Pros**:
+- Easier to implement
+- Allow query across a single collection
