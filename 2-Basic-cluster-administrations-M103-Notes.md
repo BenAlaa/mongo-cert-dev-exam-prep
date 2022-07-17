@@ -1542,3 +1542,28 @@ Every time you write a new document to the collection, the MongoS router checks 
 
 
 
+### Picking a Good Shard Key:
+
+**What makes a good Shard Key?**
+The goal is a shard key whose values provides good write distribution.
+- **Cardinality**: 
+   - Higher Cardinality =  many possible unique shard key values
+   - The higher the better
+- **Frequency**:
+   - High Frequency =  low repetition of a given unique shard key value.
+   - If we have 90% of document have the same the shard key value that means that they well be distributed to the same shard which is bad.
+   - The lower the better.
+- **Type of Change**:
+   - Avoid shard keys that change monotonically
+   - Like a counter, timestamp, objectId ... 
+   - This will lead to all documents will be in the shard with max range
+   - Should be avoided
+
+
+
+**Read Isolation**:
+- Which shard has the data that meets our query parameter?
+- MongoDb directs tatgeted queries to a single shard
+- Without the shard key, MongoDB has to ask every shard
+- The key should be used frequently in query operations to direct the router to it (faster reading)
+
