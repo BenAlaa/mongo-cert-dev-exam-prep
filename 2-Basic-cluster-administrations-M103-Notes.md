@@ -1607,3 +1607,24 @@ Shard key value frequency affects the number of chunks:
    - Once marked as jumbo the balancer skips these cunks and avoid trying to move them
    - In some cases these will not be able to split
    - this results from poor choice of key
+
+
+
+### Balancing
+- MongoDB balancer identifies the shard with too many chunks and distribute them to other shards.
+- Balancer runs on primary member of config servers starting 3.2 before it ran in mongos.
+- When it detects a migration threshold, it starts a balancer round
+- The balancer can migrate chunks in parallel but a shard can only participate in a single migration at a time
+- Number of chunks to migrate in a round = floor(n / 2)  n = #shards
+- Then a nother round takes place until the shards are balaced
+- Balancer affects performance
+
+
+**Balancer Management Methods**:
+Start / Stop the Balancer
+- ```sh.startBalacer(timeout, interval)``` timeout-> how mins to wait to start or stop the balancer
+- ```sh.stopBalancer(timeout, interval)``` interval-> how mins the client wait to check the status of the balancer again
+- ```sh.setBalacerState(bool)``` true, flase on/off
+
+
+> You can read more about scheduling the balancer on the [MongoDB Sharding docs](https://docs.mongodb.com/manual/tutorial/manage-sharded-cluster-balancer/#sharding-schedule-balancing-window).
