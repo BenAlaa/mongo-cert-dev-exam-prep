@@ -1649,3 +1649,41 @@ Start / Stop the Balancer
 
 > You can read more about routing Aggregation queries in a sharded cluster on the [MongoDB sharding docs](https://www.mongodb.com/docs/manual/core/aggregation-pipeline-sharded-collections/).
 
+
+
+### Targeted Queries vs Scatter Gather
+Each mongos keeps local cashed map of the shard chunk relationships that exists on the config server
+Shard | Data
+--- | --- |
+1 | minKey -> 10000000
+2 | 10000000 -> 20000000
+3 | 30000000 -> maxKey
+
+So when the mongos receives a query whose predicate includes the shard key, the mongos can look at the table and know exactly which shards to direct that query to.
+
+The mongos opens a cursor against only those shards that can satisfy the query predicate.
+Because the mongos is targeting the query to a subset of shards in the cluster, these targeted queries are generally faster than having to check in with every shard in the cluster.
+
+If, for example, the mongos can satisfy the entire query by targeting a single shard, then the mongos can even bypass the merge stage and just return the results. This is particularly fast.
+
+
+When the query predicate does not include the shard key, then the mongos cannot derive exactly which shards satisfythe query.
+These scatter gather queries must necessarily ping and wait for the reply of every shard in the cluster, regardless if they have something to contribute towards the execution of the query or not.
+
+Depending on the number of shards in your cluster, the amount of network latency between shards and mongos and a number of other factors, these queries can be slow.
+
+Compound indexes can be used as shard keys in this case, using any index prefix in the pridicate will result in a target query for example:
+   ```
+   shard key: {a: 1, b: 1, c: 1}
+   
+   Targeted Queries:
+   db.col.find({a: })
+   db.col.find({a: , b: })
+   db.col.find({a: , b: , c: })
+
+   Scatter-gather Queries:
+   db.col.find({b: })
+   db.col.find({c: })
+   ```
+
+**Note** Using ```db.col.find().explain()```  shows us detailed info about how we got the results
