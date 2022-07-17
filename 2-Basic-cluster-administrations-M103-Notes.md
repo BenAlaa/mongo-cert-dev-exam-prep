@@ -1628,3 +1628,24 @@ Start / Stop the Balancer
 
 
 > You can read more about scheduling the balancer on the [MongoDB Sharding docs](https://docs.mongodb.com/manual/tutorial/manage-sharded-cluster-balancer/#sharding-schedule-balancing-window).
+
+
+
+
+### Queries in a Sharded Cluster
+- The mongos is responsible for routing queries
+- If the shard key is in the query predicate, then it will target a specific shards (very efficient) otherwise it performs a scatter gather on list of shards (all), opens a cursor in each one, performs the query then merges the result from each shard.
+
+**Sort, Limit and Skip in sharded clusters**:
+- **sort( )**
+   - The mongos pushes the sort to each shard and merge-sorts the results
+
+- **limit( )**
+   - The mongos passes the limit to each targeted shard, then re-applies the limitto the merged set of results
+
+- **skip( )**
+   - The mongos performs the skip against the merged set of results
+
+
+> You can read more about routing Aggregation queries in a sharded cluster on the [MongoDB sharding docs](https://www.mongodb.com/docs/manual/core/aggregation-pipeline-sharded-collections/).
+
