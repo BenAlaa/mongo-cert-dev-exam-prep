@@ -1369,3 +1369,137 @@ The minumum requirements to have a sharded cluster is to have (mongos process, o
    ```rs.stepDown()```
 19. Adding new shard to cluster from mongos:
    ```sh.addShard("m103-repl/192.168.103.100:27012")```
+
+
+
+
+### Config DB
+Config DB maintained and used internally by mongodb, so generally you should never write any data to it. However it's got some useful information so we are going to read from it.
+
+If you'd like to explore the collections on the config database, you can find the instructions here:
+   - Switch to config DB:
+      ```
+      use config
+      ```
+   - Show config DB collections
+      ```
+      show collections
+      ---------------------------
+      actionlog
+      changelog
+      chunk
+      collections
+      databases
+      lockpings
+      locks
+      migrations
+      mongos
+      shards
+      tags
+      transactions
+      version
+      ```
+   - Query config.databases: will return each database in our cluster as one document
+      ```
+      db.databases.find().pretty()
+      -------------------------
+      {"_id": "m103", "primary": "m103-repl", "partitioned": true}
+      ```
+   - Query config.collections: gives us info on collections that have been sharded and the shard key used
+      ```
+      db.collections.find().pretty()
+      -----------------------------
+      {
+         "_id": "config.system.sessions",
+         "lastmodEpoch": ObjectId("sdfdgfghh556546fgh6fdgh"),
+         "lastmod": ISODate("------------------------"),
+         "dropped": false,
+         "key": {
+            "_id": 1
+         },
+         "unique": false,
+         "uuid": UUID("f5f4ff-gfggfdgdg45-4455-d4f544f5d5df4")
+      },
+      {
+         "_id": "m103.products",
+         "lastmodEpoch": ObjectId("sdfdgfghh556546fgh6fdgh"),
+         "lastmod": ISODate("------------------------"),
+         "dropped": false,
+         "key": {
+            "salePrice": 1
+         },
+         "unique": false,
+         "uuid": UUID("f5f4ff-gfggfdgdg45-4455-d4f544f5d5df4")
+      }
+      ```
+   - Query config.shards: This tell us about the shards in our cluster
+      ```
+      db.shards.find().pretty()
+      -------------------------
+      {
+         "_id": "m103-repl",
+         "host": "m103-repl/192.168.103.100:27011,192.168.103.100:27012,192.168.103.100:27013",
+         "state": 1
+      },
+      {
+         "_id": "m103-shard-2",
+         "host": "m103-shard-2/192.168.103.100:27014,192.168.103.100:27015,192.168.103.100:27016",
+         "state": 1
+      }
+      ```
+   - Query config.chunks: Each chunk for every collection in this database is returned as one document. The enclusive and exclusive maximum define the chunk range of the shard key value. That means that any document in the associated collection who's shard key value falss into this chunks range will end up in this chunk, and this chunk only
+      ```
+      db.chunks.find().pretty()
+      -------------------------
+      {
+         "_id": "m103.products-salesPrice_MinKey",
+         "lastmodEpoch": ObjectId("sdfdgfghh556546fgh6fdgh"),
+         "lastmod": Timestamp(2,0),
+         "ns": "m103.productions",
+         "min": {
+            "salePrice": {"$minKey": 1}
+         },
+         "max": {
+            "salePrice": 14.99
+         },
+         "shard": "m103-shard-2"
+      },
+      {
+         "_id": "m103.products-salesPrice_14.99",
+         "lastmodEpoch": ObjectId("sdfdgfghh556546fgh6fdgh"),
+         "lastmod": Timestamp(2,1),
+         "ns": "m103.productions",
+         "min": {
+            "salePrice": 14.99
+         },
+         "max": {
+            "salePrice": 33.99
+         },
+         "shard": "m103-shard-2"
+      },
+      {
+         "_id": "m103.products-salesPrice_33.99",
+         "lastmodEpoch": ObjectId("sdfdgfghh556546fgh6fdgh"),
+         "lastmod": Timestamp(2,1),
+         "ns": "m103.productions",
+         "min": {
+            "salePrice": 33.99
+         },
+         "max": {
+            "salePrice": {"$maxKey": 1}
+         },
+         "shard": "m103-shard-2"
+      }
+      ```
+   - Query config.mongos: holds data about the mongos processes connected to the cluster
+      ```
+      db.mongos.find().pretty()
+      --------------------------
+      {
+         "_id": "m103:26000",
+         "mongoVersion": "3.6.2-rc0",
+         "ping": ISODate("------------------------"),
+         "up": NumberLong(3892),
+         "waiting": true
+      }
+      ```
