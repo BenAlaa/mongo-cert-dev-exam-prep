@@ -1567,3 +1567,23 @@ The goal is a shard key whose values provides good write distribution.
 - Without the shard key, MongoDB has to ask every shard
 - The key should be used frequently in query operations to direct the router to it (faster reading)
 
+
+
+
+### Hashed shard key:
+That is a shard key where the underlying index is hashed.
+Like hash tables, the key is hashed and the hash is used to distribute the data
+**When to Use**:
+- monotonic changed keys
+
+**Drawbacks**: 
+- Queries on ranges of shard key values are more likely to be scatter-gathered
+- Cannot support geographically isolated read operations using zone sharding
+- Hashed index must be on a single non-array field
+- Hashed index don't support fast sorting
+
+
+**Sharding using a Hashed Shard Key**:
+1. Use ```sh.enableSharding("<database>")``` to rnable sharding for the specified database
+2. Use ```db.collection.createIndex({"field": "hashed"})``` to create the index for your shard key fields
+3. Use ```sh.shardCollection("<db>.<collection>", {field: "hashed"})``` to shard the collection
