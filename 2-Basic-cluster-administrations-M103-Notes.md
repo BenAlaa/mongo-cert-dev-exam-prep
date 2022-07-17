@@ -1,7 +1,9 @@
-## Chapter 1: The Mongod
+# M103: Basic Cluster Administration <a name="m103"></a>
+Learn the essentials of database administration in MongoDB.
+## Chapter 1: The Mongod <a name="m103-ch1"></a>
 ---
 
-### The Mongod Introduction
+### The Mongod Introduction <a name="m103-mongod-intro"></a>
 - **daemon** is a program or process that's meant to be run but not interacted with directly.
 - **mongod** is the main daemon for mongodb, is the core server of the database to handle connections, requests and process data.
 - has the all main configurations options to make your data secure and consistent.
@@ -31,7 +33,7 @@
     - Drivers (Node, swift, java, ...)
 
 
-### Configuration File
+### Configuration File <a name="m103-conf-file"></a>
 #### command line options and their respective config commands
 
 - ``--dbpath``   -->  ``storage.dbPath``
@@ -294,7 +296,7 @@ mongo admin --host localhost:27000 --eval '
 ```
 
 
-### File Structure (WiredTiger)
+### File Structure (WiredTiger)  <a name="m103-file-structure"></a>
 You typically don't need to interact with this data folder to be modified may be to be read only.
 These files isn't designed for user modefications and if you modefied them you may face crashes or data lose.
 
@@ -353,7 +355,7 @@ this group of files is related to how wiredTiger storage engine keep track of in
 **mongodb-27017.sock** file in /tmp folder: socket file use to create socket connection to the specified port
 
 
-### Basic Commands
+### Basic Commands  <a name="m103-basic-commands"></a>
 - Shell helpers ---> wraps db commands
    ```
    db.<method>() --> database commands
@@ -414,7 +416,7 @@ this group of files is related to how wiredTiger storage engine keep track of in
    ```
 
 
-### Logging Basics
+### Logging Basics  <a name="m103-loging-basics"></a>
 MongoDB provide to logging facilities to tracking activites on your database:
 1. **Process Log**: collectes the activites into one of the following components: 
    - ACCESS - messages related to access control, such as authentication
@@ -473,7 +475,7 @@ command: <the command itself>
 
 
 
-### Profiling the Database
+### Profiling the Database  <a name="m103-profiling-db"></a>
 
 - Profiling stores more detailed info than logging
 - not all actions are captured on profiler
@@ -498,9 +500,9 @@ command: <the command itself>
    ```db.setProfilingLevel(<level>, {slowms: <Number>})```
 
 
-### Basic Security
+### Basic Security  <a name="m103-basic-security"></a>
 
-#### Authentication Mechanisms:
+#### Authentication Mechanisms:  <a name="m103-auth-mechanisms"></a>
 1. SCRAM(**S**alted **C**halleng **R**esponse **A**uthentication **M**echanism): is the default and the most basic form of client authentication (**Community Edition**)
 
 2. X.509: this form using X.509 certificate for authentication. this is more secure and complex(**Community Edition**)
@@ -511,7 +513,7 @@ command: <the command itself>
 
 
 
-#### Authorization: Role Based Access Control
+#### Authorization: Role Based Access Control  <a name="m103-role-acl"></a>
 
 - Each user has one or more roles.
 - Each role has one or more privileges.
@@ -546,7 +548,7 @@ mongo --username root --password root123 --authenticationDatabase admin
 ```
 
 
-### Roles
+### Roles  <a name="m103-rols"></a>
 - Database users are granted roles
 - **Custom Roles** : tailored roles to attend  specific needs of sets of users
 - **Built-In Roles**: Pre-packed MongoDB Roles
@@ -695,7 +697,7 @@ mongo --username root --password root123 --authenticationDatabase admin
 
 
 
-### Server Tools Overview
+### Server Tools Overview  <a name="m103-server-tools"></a>
 
 List mongodb binaries: this will list all tools installed with mongodb
 ```
@@ -746,15 +748,15 @@ find /usr/bin/ -name "mongo*"
 
 
 
-## Chapter 2: Replication
+## Chapter 2: Replication  <a name="m103-ch2"></a>
 ---
 
-### What is Replication?
+### What is Replication?  <a name="m103-what-is-replication"></a>
 Replication is the concept of manitaining multiple copies of your data.
 This because you never assume that all your servers will be all over available.
 To make sure at anytime any server is down you can still access your data **Availability**.
 
-### MongoDB Replica Set
+### MongoDB Replica Set  <a name="m103-mongo-rs"></a>
 - Replicaset is a group of mongod nodes that work on the same data
 - consists of one primary node that handles the data and secondary nodes that sync up with the primary
 - if the primary fails, a secondary node takes it's place in a process called **failover** where nodes vote for which node will become the primary in a process called **election**
@@ -775,7 +777,7 @@ To make sure at anytime any server is down you can still access your data **Avai
 
 
 
-### Setting Up a Replica Set
+### Setting Up a Replica Set  <a name="m103-setting-rs"></a>
 We will independtly launching 3 mongod process and try to connect them to replicate data for us.
 
 1. adding keyFile to security section in config file so all members can authentiacte each other using this keyFile
@@ -880,7 +882,7 @@ We will independtly launching 3 mongod process and try to connect them to replic
 21. Checking replica set overview after election: ```rs.isMaster()```
 
 
-### Replication Configuration Document
+### Replication Configuration Document  <a name="m103-repl-conf"></a>
 - BSON doc that holds the configuration of the replicaset and is shared across all nodes
 - JSON Object that define the configuration options of our replica set.
 - Can be configured manually from the shell
@@ -916,7 +918,7 @@ We will independtly launching 3 mongod process and try to connect them to replic
 ```
 
 
-### Replication Commands
+### Replication Commands  <a name="m103-repl-commands"></a>
 **rs.status()**:
   - reports health of the nodes
   - uses data from heartbeats so it can be seconds out of date
@@ -936,7 +938,7 @@ We will independtly launching 3 mongod process and try to connect them to replic
 
 
 
-### Local DB
+### Local DB  <a name="m103-local-db"></a>
 
 - Display all databases (by default, only admin and local):
    ```
@@ -978,7 +980,7 @@ We will independtly launching 3 mongod process and try to connect them to replic
 
 
 
-### Reconfiguring a Running Replica Set
+### Reconfiguring a Running Replica Set  <a name="m103-re-conf-rs"></a>
 
 Let's assume we have a replica set of 3 nodes and we need to add 2 more 1 as Arbiter and 1 as secodary node.
 - **node4.conf**:
@@ -1052,14 +1054,14 @@ Let's assume we have a replica set of 3 nodes and we need to add 2 more 1 as Arb
 
 
 
-### Reads and Writes on a Replica Set
+### Reads and Writes on a Replica Set  <a name="m103-rs-read-write"></a>
 - By default read and write operations aren't allowed on secondary nodes
 - to enable reading on a secondary node: ```rs.slaveOk()```
 - writing is forbidden to replica sets
 - if no nodes are secondary the primary will be secondary and we will not be able to write to the replica set
 
 
-### Failover and Elections
+### Failover and Elections  <a name="m103-failover-election"></a>
 suppose the following scenario: 
   - replicaset with 3 nodes 1p and 2s
   - to do a rolling upgrade we do:
@@ -1090,7 +1092,7 @@ suppose the following scenario:
   - if a primary can't reach any voting secondary, it wil automatically step down and be a secondary and if no primary in the replset then it won't be reachable
 
 
-### Write Concerns
+### Write Concerns  <a name="m103-write-concerns"></a>
 - write concerns are acknowledgement mechanism to increase durability
 - for a write to be durable, majority of the nodes must acknowledge the success of the write
 - **Levels**:
@@ -1118,7 +1120,7 @@ db.collection.insert(
 
 
 
-### Read Concerns
+### Read Concerns  <a name="m103-read-concerns"></a>
 - returns the data if it has been saved to a number of nodes
 **Levels**: 
   - ```local``` --> (default) most recent data to the cluster on primary only and doesn't guarantee that it is durable
@@ -1149,9 +1151,9 @@ modes:
 
 
 
-## Chapter 3: Sharding
+## Chapter 3: Sharding  <a name="m103-ch3"></a>
 ---
-### What is Sharding?
+### What is Sharding?  <a name="m103-what-is-sh"></a>
 - higher cost of vertical scaling
 - scaling horizontaly by divid the data into multiple instances
 - impact on operational tasks like (backup)  ---> backing up several 2 TB hard disks in parallel is faster than 20 TB single hard disk
@@ -1159,7 +1161,7 @@ modes:
 - geographically distributed datasets
 
 
-### Sharding Architecture
+### Sharding Architecture  <a name="m103-sh-arch"></a>
 - we setting up a router process that accept queries from clients this router process called **Mongos**
 - We can have any number of Mongos processes 
 - Mongos using Metadata stored in config servers that has info about where each piece is stored.
@@ -1173,7 +1175,7 @@ modes:
 
 
 
-### Setting Up a Sharded Cluster
+### Setting Up a Sharded Cluster  <a name="m103-setting-sh-cluster"></a>
 The minumum requirements to have a sharded cluster is to have (mongos process, one shard, CSRS)
 
 
@@ -1373,7 +1375,7 @@ The minumum requirements to have a sharded cluster is to have (mongos process, o
 
 
 
-### Config DB
+### Config DB  <a name="m103-conf-db"></a>
 Config DB maintained and used internally by mongodb, so generally you should never write any data to it. However it's got some useful information so we are going to read from it.
 
 If you'd like to explore the collections on the config database, you can find the instructions here:
@@ -1506,7 +1508,7 @@ If you'd like to explore the collections on the config database, you can find th
 
 
 
-### Shard Keys
+### Shard Keys  <a name="m103-shard-keys"></a>
 This is the indexed field(s) used to partition collection on shards in our cluster.
 
 **How the shard key is used to distribute your data?**
@@ -1542,7 +1544,7 @@ Every time you write a new document to the collection, the MongoS router checks 
 
 
 
-### Picking a Good Shard Key:
+### Picking a Good Shard Key:  <a name="m103-good-shard-key"></a>
 
 **What makes a good Shard Key?**
 The goal is a shard key whose values provides good write distribution.
@@ -1570,7 +1572,7 @@ The goal is a shard key whose values provides good write distribution.
 
 
 
-### Hashed shard key:
+### Hashed shard key:  <a name="m103-hashed-sh-key"></a>
 That is a shard key where the underlying index is hashed.
 Like hash tables, the key is hashed and the hash is used to distribute the data
 **When to Use**:
@@ -1590,7 +1592,7 @@ Like hash tables, the key is hashed and the hash is used to distribute the data
 
 
 
-### Chunks
+### Chunks  <a name="m103-chunks"></a>
 Default size 64MB
 Min size 1MB
 Max size 1024MB
@@ -1610,7 +1612,7 @@ Shard key value frequency affects the number of chunks:
 
 
 
-### Balancing
+### Balancing  <a name="m103-balancing"></a>
 - MongoDB balancer identifies the shard with too many chunks and distribute them to other shards.
 - Balancer runs on primary member of config servers starting 3.2 before it ran in mongos.
 - When it detects a migration threshold, it starts a balancer round
@@ -1632,7 +1634,7 @@ Start / Stop the Balancer
 
 
 
-### Queries in a Sharded Cluster
+### Queries in a Sharded Cluster  <a name="m103-query-sh"></a>
 - The mongos is responsible for routing queries
 - If the shard key is in the query predicate, then it will target a specific shards (very efficient) otherwise it performs a scatter gather on list of shards (all), opens a cursor in each one, performs the query then merges the result from each shard.
 
@@ -1651,7 +1653,7 @@ Start / Stop the Balancer
 
 
 
-### Targeted Queries vs Scatter Gather
+### Targeted Queries vs Scatter Gather  <a name="m103-target-queries"></a>
 Each mongos keeps local cashed map of the shard chunk relationships that exists on the config server
 Shard | Data
 --- | --- |
