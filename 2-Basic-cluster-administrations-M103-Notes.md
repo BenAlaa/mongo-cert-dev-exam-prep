@@ -1503,3 +1503,42 @@ If you'd like to explore the collections on the config database, you can find th
          "waiting": true
       }
       ```
+
+
+
+### Shard Keys
+This is the indexed field(s) used to partition collection on shards in our cluster.
+
+**How the shard key is used to distribute your data?**
+
+Consider a collection with some number of documents in them.
+MongoDB uses the shard key to divide up these documents into logical groupings that MongoDB then distributes across our sharded cluster.
+
+MongoDB he refers to these groupings as chunks.
+The value of the field or fields we choose as our shard key help to define the inclusive lower bound, and the exclusive upper bound of each chunk.
+
+Because the shard key is used to define chunk boundaries, it also defines which chunk a given document is going to belong to.
+
+
+Every time you write a new document to the collection, the MongoS router checks which shard contains the appropriate chunk for that documents key value, and routes the document to that shard only.
+
+
+
+
+- The shard key must be present on every document in the collection, and every new inserted document.
+- The shard key Fields must be indexed and indexes must exists first before you can select the indexed fields for your shard key.
+- Shard Keys are immutable:
+   - cannot be changed after sharding
+   - cannot specify another key or update a value for that key in any document
+- Shard Keys are permanent:
+   - cannot unshard a collection unless dropped and restored again.
+
+**How To Shard**:
+1. Use ```sh.enableSharding("<database>")``` to enable sharding for the specified database.
+2. Use ```db.collection.createIndex()``` to create Index on shard key fields
+3. Use ```sh.shardCollection("database.collection", {shard key: 1}) to shard the collection
+
+
+
+
+
