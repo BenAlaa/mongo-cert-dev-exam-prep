@@ -1587,3 +1587,23 @@ Like hash tables, the key is hashed and the hash is used to distribute the data
 1. Use ```sh.enableSharding("<database>")``` to rnable sharding for the specified database
 2. Use ```db.collection.createIndex({"field": "hashed"})``` to create the index for your shard key fields
 3. Use ```sh.shardCollection("<db>.<collection>", {field: "hashed"})``` to shard the collection
+
+
+
+### Chunks
+Default size 64MB
+Min size 1MB
+Max size 1024MB
+Can be changed at runtime using:
+- using config db
+- inserting into settings collection: ``` db.settings.save({_id: "chunksize", value: <inMB> (ex: 2)})```
+- changes will be applied when importing or saving new data
+
+
+Shard key value frequency affects the number of chunks:
+**Jumbo Chunks**:
+   - Larger than the defined chunksize
+   - Can't be moved or split
+   - Once marked as jumbo the balancer skips these cunks and avoid trying to move them
+   - In some cases these will not be able to split
+   - this results from poor choice of key
