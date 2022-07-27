@@ -199,7 +199,7 @@ The main tradoff you will face is Simplicity vs Performance or try to find the b
 - can't reference the many in the one side as it won't be performant
 - Reference the one in the many side
 
-## Chapter 3: Patterns (Part 1)
+## Chapter 3: Patterns
 
 ---
 
