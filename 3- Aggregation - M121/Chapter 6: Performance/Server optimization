@@ -1,4 +1,0 @@
-1- if a sort is followed by match, the query optimizer will move the match above to limit the docs sorted
-2- if skip is followed by limit, the query optimizer will move the limit up and change the values of each stage 
-    to result in correct data ----> {skip: 10, limit: 5} will be { limit: 15, skip: 10 }
-3- some stages can be combined together ---> {limit: 5}, {liit: 10} ---> {limit: 15} or skip or match if possible

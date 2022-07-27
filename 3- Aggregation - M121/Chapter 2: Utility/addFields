@@ -1,5 +1,0 @@
-- similar to project
-- the difference is that: 
-    - only add fields or modify existing fields but doesn't remove any fields
-
-- has new alias $set
