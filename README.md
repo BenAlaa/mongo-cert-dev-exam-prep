@@ -1,6 +1,7 @@
 ![Certified Developer](./Assets/university-badges-dev-lockup.png)
 ![MDB University](./Assets/mdb-university.png)
-In this repo I tried to collect shraded pieces about importent MongoDB topics from many resources that took from my around 2 monthes to collect them in such a simple way that I hope will help any one how is preparing to be a **Certified MongoDB Developer** or for any one how searching for an organized source for the most important mongoDB topics that will help you to build a solid db applications and have the required knowledge to scale and maintain your databases.
+![Certificate](./Assets/DEVELOPER_Certificate.jpeg)
+In this repo I tried to collect sharded pieces about importent MongoDB topics from many resources that took from me around 2 months to collect them in such a simple way that I hope it will help any one how are preparing to be a **Certified MongoDB Developer** or for any one how searching for an organized source for the most important mongoDB topics that will help you to build a solid db applications and have the required knowledge to scale and maintain your databases.
 # Table of Content
 1. [M001 - MongoDB Basics](#m001)
     1. [Chapter 1: What is MongoDB?](#m001-ch1)
